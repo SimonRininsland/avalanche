@@ -223,7 +223,7 @@ def display():
     glRotatef(camera_rot_lag[0], 1.0, 0.0, 0.0)
     glRotatef(camera_rot_lag[1], 0.0, 1.0, 0.0)
     glBlendFunc(GL_SRC_ALPHA, GL_ONE)
-    glUseProgram(shader_program)
+    #glUseProgram(shader_program)
     glEnableClientState(GL_COLOR_ARRAY)
     glEnableClientState(GL_VERTEX_ARRAY)
     glColorPointer(3, GL_FLOAT, 0, COLORS)
@@ -234,7 +234,7 @@ def display():
 
 
 def init():
-    glutInit(sys.argv)
+    glutInit(1, "Test")
     glutInitDisplayMode(GLUT_RGB | GLUT_DEPTH | GLUT_DOUBLE)
     glutInitWindowSize(1280, 720)
     # Open a window
