@@ -13,53 +13,6 @@ GL_GEOMETRY_INPUT_TYPE_EXT = 0x8DDB
 GL_GEOMETRY_OUTPUT_TYPE_EXT = 0x8DDC
 GL_GEOMETRY_VERTICES_OUT_EXT = 0x8DDA
 
-vert = '''
-void main(){
-    gl_FrontColor = gl_Color;
-    gl_Position = ftransform();
-}
-'''
-
-geom = '''#version 120 
-#extension GL_EXT_geometry_shader4 : enable 
-const float radius = 0.5;
-varying out vec2 coord;
-
-void main() 
-{
-  gl_FrontColor = gl_FrontColorIn[0];
-
-  coord = vec2( -1,-1 );
-  gl_Position = (gl_PositionIn[0] + gl_ProjectionMatrix * vec4(-radius,-radius,0,0) );
-  EmitVertex();
-  coord = vec2( -1,1 );
-  gl_Position = (gl_PositionIn[0] + gl_ProjectionMatrix * vec4(-radius,radius, 0,0) );
-  EmitVertex();
-  coord = vec2( 1,-1 );
-  gl_Position = (gl_PositionIn[0] + gl_ProjectionMatrix * vec4( radius,-radius, 0,0) );
-  EmitVertex();
-  coord = vec2( 1,1 );
-  gl_Position = (gl_PositionIn[0] + gl_ProjectionMatrix * vec4( radius,radius, 0,0) );
-  EmitVertex();  
-  EndPrimitive();
-}
-'''
-frag = '''
-varying in vec2 coord;
-void main(){
-    vec4 color = gl_Color;
-    color.a = 1.0-length( coord );
-    if (color.a<0.0) discard;
-
-    // A VERY FAKE "lighting" model
-    float d = dot( normalize(vec3(coord,1.0)), vec3( 0.19, 0.19, 0.96225 ) );
-    color.rgb *= d*d;
-    // end "lighting"
-
-    gl_FragColor = color;
-}
-'''
-
 theta = 0.0
 delta = 0.0
 TIMEOUTFACTOR = 5.0
@@ -112,41 +65,6 @@ def my_idle():
 
     glutPostRedisplay()
 
-
-shader_program = None
-
-
-def define_shader():
-    global shader_program
-    shader_program = gl.glCreateProgram()
-    glProgramParameteri(shader_program, GL_GEOMETRY_INPUT_TYPE_EXT, gl.GL_POINTS)
-    glProgramParameteri(shader_program, GL_GEOMETRY_OUTPUT_TYPE_EXT, gl.GL_TRIANGLE_STRIP)
-    glProgramParameteri(shader_program, GL_GEOMETRY_VERTICES_OUT_EXT, 4)
-
-    vobj = glCreateShader(GL_VERTEX_SHADER)
-    glShaderSource(vobj, vert)
-    glCompileShader(vobj)
-    print
-    glGetShaderInfoLog(vobj)
-    glAttachShader(shader_program, vobj)
-
-    gobj = glCreateShader(GL_GEOMETRY_SHADER_EXT)
-    glShaderSource(gobj, geom)
-    glCompileShader(gobj)
-    print
-    glGetShaderInfoLog(gobj)
-    glAttachShader(shader_program, gobj)
-
-    fobj = glCreateShader(GL_FRAGMENT_SHADER)
-    glShaderSource(fobj, frag)
-    glCompileShader(fobj)
-    print
-    glGetShaderInfoLog(fobj)
-    glAttachShader(shader_program, fobj)
-
-    glLinkProgram(shader_program)
-    print
-    glGetProgramInfoLog(shader_program)
 
 
 def reshape(width, height):
@@ -222,11 +140,10 @@ def display():
     glTranslatef(camera_trans_lag[0], camera_trans_lag[1], camera_trans_lag[2])
     glRotatef(camera_rot_lag[0], 1.0, 0.0, 0.0)
     glRotatef(camera_rot_lag[1], 0.0, 1.0, 0.0)
-    #glBlendFunc(GL_SRC_ALPHA, GL_ONE)
-    #glUseProgram(shader_program)
+
     glEnableClientState(GL_COLOR_ARRAY)
     glEnableClientState(GL_VERTEX_ARRAY)
-    #glColorPointer(3, GL_FLOAT, 0, COLORS)
+    glColorPointer(3, GL_FLOAT, 0, COLORS)
     glVertexPointer(3, GL_FLOAT, 0, POINTS)
     glDrawArrays(0, 0, len(POINTS))
 
@@ -247,8 +164,6 @@ def init():
     glutIdleFunc(my_idle)
     #glEnable(GL_DEPTH_TEST)
     glClearColor(1, 1, 1, 0)
-
-    #define_shader()
 
     # 100k Balls
     count = 100000

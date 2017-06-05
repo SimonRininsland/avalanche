@@ -3,14 +3,22 @@
 from OpenGL.GL import *
 from OpenGL.GLU import *
 from OpenGL.GLUT import *
+import numpy
 
 def display():
     # display all the stuff
     # which colors will be cleared (all here- without alpha) - every frame
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
 
+    # ttransle on x axis
+    glTranslate(.1, 0, 0)
+
+    # draw everything red
+    glColor3f(1, 0, 0)
+
     # draw solid Sphere
-    glutSolidSphere(2,20,20)
+    # void glutSolidSphere(GLdouble radius, GLint slices, GLint stacks);
+    glutSolidSphere(1,200,200)
 
     # swap the Buffers on Projection Matrix
     glutSwapBuffers()
@@ -32,8 +40,11 @@ def init():
     # enable depth Test
     glEnable(GL_DEPTH_TEST)
 
-    # enable Lighting and Shadows
-    glEnable(GL_LIGHTING)
+    # enable Lighting and Shadows @todo we need to add a ligth afterwards
+    #glEnable(GL_LIGHTING)
+
+    # enabling colored material
+    glEnable(GL_COLOR_MATERIAL)
 
     # clear the screen
     glClearColor(1, 1, 1, 0)
