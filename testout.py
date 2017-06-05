@@ -222,11 +222,11 @@ def display():
     glTranslatef(camera_trans_lag[0], camera_trans_lag[1], camera_trans_lag[2])
     glRotatef(camera_rot_lag[0], 1.0, 0.0, 0.0)
     glRotatef(camera_rot_lag[1], 0.0, 1.0, 0.0)
-    glBlendFunc(GL_SRC_ALPHA, GL_ONE)
+    #glBlendFunc(GL_SRC_ALPHA, GL_ONE)
     #glUseProgram(shader_program)
     glEnableClientState(GL_COLOR_ARRAY)
     glEnableClientState(GL_VERTEX_ARRAY)
-    glColorPointer(3, GL_FLOAT, 0, COLORS)
+    #glColorPointer(3, GL_FLOAT, 0, COLORS)
     glVertexPointer(3, GL_FLOAT, 0, POINTS)
     glDrawArrays(0, 0, len(POINTS))
 
@@ -245,10 +245,10 @@ def init():
     glutMouseFunc(mouse)
     glutMotionFunc(motion)
     glutIdleFunc(my_idle)
-    glEnable(GL_DEPTH_TEST)
+    #glEnable(GL_DEPTH_TEST)
     glClearColor(1, 1, 1, 0)
 
-    define_shader()
+    #define_shader()
 
     # 100k Balls
     count = 100000
