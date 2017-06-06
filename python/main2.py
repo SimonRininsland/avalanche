@@ -1,5 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
+import random
+
 from pygame import draw
 
 from OpenGL.GL import *
@@ -8,9 +10,10 @@ from OpenGL.GLUT import *
 
 width, height = (1280, 720)
 
+pos = []
+
 # ASCII OCTAL for ESCAPE
 ESCAPE = '\033'
-
 
 
 def drawLoop():
@@ -28,21 +31,49 @@ def drawLoop():
 
     # draw solid Sphere
     # void glutSolidSphere(GLdouble radius, GLint slices, GLint stacks);
-    glutSolidSphere(.01, 200, 200)
+
+    global pos
+
+    for index, i in enumerate(pos):
+        drawLine(i[0], i[1], i[2])
+        if i[1] < -1:
+            pos[index] = (i[0], 1, i[2])
+        else:
+            pos[index] = (i[0], i[1]-0.01, i[2])
 
 
     # swap the Buffers on Projection Matrix
     glutSwapBuffers()
     return
 
+
 def keyFunc(key, x, y):
     if key == ESCAPE:
         sys.exit()
+
 
 def mouseFunc(key, mode, x, y):
     if mode:
         print x, y
     pass
+
+
+def drawLine(x, y, z):
+    glLineWidth(10);
+    glColor3f(1.0, 0.0, 0.0);
+    glBegin(GL_LINES);
+    glVertex3f(x, y, z);
+    glVertex3f(x + .002, y + .002, z + .002);
+    glEnd();
+
+def randPos(i):
+    global pos
+    for j in xrange(i):
+        x = random.uniform(-1,1)
+        y = random.uniform(-1,1)
+        z = random.uniform(-1,1)
+        pos.append((x,y,z))
+
 
 def init():
     # Init OpenGL Utility Toolkit
@@ -100,4 +131,5 @@ def init():
 
 
 if __name__ == '__main__':
+    randPos(15)
     init()
