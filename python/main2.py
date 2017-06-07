@@ -2,8 +2,6 @@
 # -*- coding: utf-8 -*-
 import random
 
-from pygame import draw
-
 from OpenGL.GL import *
 from OpenGL.GLU import *
 from OpenGL.GLUT import *
@@ -16,11 +14,15 @@ pos = []
 ESCAPE = '\033'
 
 
-def drawLoop():
+def display():
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
+
+    glLoadIdentity()
+
+def drawLoop(deltaT):
     # display all the stuff
     # which colors will be cleared (all here- without alpha) - every frame
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
-
     glLoadIdentity()
 
     # ttransle on x axis
@@ -44,7 +46,9 @@ def drawLoop():
 
     # swap the Buffers on Projection Matrix
     glutSwapBuffers()
-    return
+
+    # LoopCallback Recursive
+    glutTimerFunc(1000/60, drawLoop, 0)
 
 
 def keyFunc(key, x, y):
@@ -55,6 +59,9 @@ def keyFunc(key, x, y):
 def mouseFunc(key, mode, x, y):
     if mode:
         print x, y
+
+    if mode == 0 and key == 0:
+        print("click")
     pass
 
 
@@ -62,6 +69,8 @@ def drawLine(x, y, z):
     glLineWidth(10);
     glColor3f(1.0, 0.0, 0.0);
     glBegin(GL_LINES);
+    # dont use fixed function functionality!!!
+    # use shader based OpenGL!!!
     glVertex3f(x, y, z);
     glVertex3f(x + .002, y + .002, z + .002);
     glEnd();
@@ -101,7 +110,7 @@ def init():
     glClearColor(1, 1, 1, 0)
 
     # to have a callback function we need to add a display function
-    glutDisplayFunc(drawLoop)
+    glutDisplayFunc(display)
 
     # callback for keystroke
     glutKeyboardFunc(keyFunc)
@@ -109,8 +118,8 @@ def init():
     # callback for mousepress
     glutMouseFunc(mouseFunc)
 
-    # Idle function for the 60 fps callback
-    glutIdleFunc(drawLoop)
+    # Timer function for the 60 fps draw callback
+    glutTimerFunc(1000/60, drawLoop, 0)
 
     # create Projection Matrix
     glMatrixMode(GL_PROJECTION)
@@ -129,7 +138,6 @@ def init():
     # Once called, this routine will never return. It will call as necessary any callbacks that have been registered.
     glutMainLoop()
 
-
 if __name__ == '__main__':
-    randPos(15)
+    randPos(123)
     init()

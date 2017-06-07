@@ -1,1 +1,4 @@
 .idea/
+documentation/*.log
+documentation/*.aux
+documentation/*.gz
