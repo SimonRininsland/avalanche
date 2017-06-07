@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 import random
+from obj_loader import Loader
 
 from OpenGL.GL import *
 from OpenGL.GLU import *
@@ -74,6 +75,8 @@ def drawLine(x, y, z):
     glVertex3f(x, y, z);
     glVertex3f(x + .002, y + .002, z + .002);
     glEnd();
+
+    print(Loader('python/ressources/cube.obj'))
 
 def randPos(i):
     global pos
