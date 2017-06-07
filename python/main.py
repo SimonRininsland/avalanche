@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 import random
-from obj_loader import Loader
+from obj_loader import *
 
 from OpenGL.GL import *
 from OpenGL.GLU import *
@@ -16,9 +16,17 @@ ESCAPE = '\033'
 
 
 def display():
+    # display all the stuff
+    # which colors will be cleared (all here- without alpha) - every frame
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
-
     glLoadIdentity()
+
+    # obj gets loaded in MeshBuffer and drawed (should be somewhere)
+    obj = MeshBuffer(Mesh('ressources/cube.obj'))
+    obj.draw()
+
+    # swap the Buffers on Projection Matrix
+    glutSwapBuffers()
 
 def drawLoop(deltaT):
     # display all the stuff
@@ -58,9 +66,6 @@ def keyFunc(key, x, y):
 
 
 def mouseFunc(key, mode, x, y):
-    if mode:
-        print x, y
-
     if mode == 0 and key == 0:
         print("click")
     pass
@@ -75,8 +80,6 @@ def drawLine(x, y, z):
     glVertex3f(x, y, z);
     glVertex3f(x + .002, y + .002, z + .002);
     glEnd();
-
-    Loader('python/ressources/cube.obj')
 
 def randPos(i):
     global pos
@@ -122,7 +125,7 @@ def init():
     glutMouseFunc(mouseFunc)
 
     # Timer function for the 60 fps draw callback
-    glutTimerFunc(1000/60, drawLoop, 0)
+    #glutTimerFunc(1000/60, drawLoop, 0)
 
     # create Projection Matrix
     glMatrixMode(GL_PROJECTION)

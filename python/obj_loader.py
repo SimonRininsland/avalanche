@@ -84,11 +84,11 @@ class Mesh(object):
 class MeshBuffer(object):
     def __init__(self, mesh):
         count = 1
-        if mesh.vertex_buffer != None: count += 1
-        if mesh.normal_buffer != None: count += 1
-        if mesh.texcoord_buffer != None: count += 1
+        if mesh.vertex_buffer is not None: count += 1
+        if mesh.normal_buffer is not None: count += 1
+        if mesh.texcoord_buffer is not None: count += 1
         buffers = list(glGenBuffers(count))
-        if mesh.vertex_buffer != None:
+        if mesh.vertex_buffer is not None:
             self._vertex_vbo = buffers.pop()
             glBindBuffer(GL_ARRAY_BUFFER, self._vertex_vbo)
             glBufferData(GL_ARRAY_BUFFER,
@@ -97,7 +97,7 @@ class MeshBuffer(object):
                          GL_STATIC_DRAW)
         else:
             self._vertex_vbo = 0
-        if mesh.normal_buffer != None:
+        if mesh.normal_buffer is not None:
             self._normal_vbo = buffers.pop()
             glBindBuffer(GL_ARRAY_BUFFER, self._normal_vbo)
             glBufferData(GL_ARRAY_BUFFER,
@@ -106,7 +106,7 @@ class MeshBuffer(object):
                          GL_STATIC_DRAW)
         else:
             self._normal_vbo = 0
-        if mesh.texcoord_buffer != None:
+        if mesh.texcoord_buffer is not None:
             self._texcoord_vbo = buffers.pop()
             glBindBuffer(GL_ARRAY_BUFFER, self._texcoord_vbo)
             glBufferData(GL_ARRAY_BUFFER,
