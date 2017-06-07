@@ -76,7 +76,7 @@ def drawLine(x, y, z):
     glVertex3f(x + .002, y + .002, z + .002);
     glEnd();
 
-    print(Loader('python/ressources/cube.obj'))
+    Loader('python/ressources/cube.obj')
 
 def randPos(i):
     global pos
