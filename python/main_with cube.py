@@ -17,23 +17,25 @@ camRotation = 0
 # lightfv for our light
 lightfv = ctypes.c_float * 4
 
+#my dummy cube
+cube = ''
+
 # ASCII OCTAL for ESCAPE
 ESCAPE = '\033'
 
-cube = pywavefront.Wavefront('resources/cube.obj')
-
 def display():
+    global cube
     # gets called if glut thinks the window has to be redrawed (by click, resize...)
     # init displaying
     glLoadIdentity()
 
-    # enable depth Test
+    # enable depth  Test
     glEnable(GL_DEPTH_TEST)
 
     # setup light - 2 lights for testing
     glLightfv(GL_LIGHT0, GL_POSITION, lightfv(-40, 200, 100, 0.0))
     glLightfv(GL_LIGHT0, GL_AMBIENT, lightfv(0.2, 0.2, 0.2, 1.0))
-    glLightfv(GL_LIGHT0, GL_DIFFUSE, lightfv(0.5, 0.5, 0.5, 1.0))
+    glLightfv(GL_LIGHT0, GL_DIFFUSE, lightfv(0.7, 0.7, 0.7, 1.0))
 
     glEnable(GL_LIGHT0)
 
@@ -43,18 +45,17 @@ def display():
     # GLOBAL light settings
     glLightModelfv(GL_LIGHT_MODEL_AMBIENT, (0.1, 0.1, 0.1, 1))
 
-    # enabling colored material
-    glEnable(GL_COLOR_MATERIAL)
-    glColorMaterial(GL_FRONT, GL_AMBIENT_AND_DIFFUSE)
-
     # set ShadeModel
     glShadeModel(GL_SMOOTH)
 
     # set MatrixMode for render
     glMatrixMode(GL_MODELVIEW)
 
+    #load my cube
+    cube = pywavefront.Wavefront('resources/cube.obj')
+
 def drawLoop(deltaT):
-    global pos, camRotation
+    global pos, camRotation, cube
     # display all the stuff
     # which colors will be cleared (all here- without alpha) - every frame
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
@@ -99,7 +100,7 @@ def init():
     glutCreateWindow(b"HS-RM 3D-Animation Avalanche")
 
     # clear the screen
-    #glClearColor(0, 0, 0, 0)
+    glClearColor(0, 0, 0, 0)
 
     # MatrixMode for setup
     glMatrixMode(GL_PROJECTION)
