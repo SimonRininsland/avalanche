@@ -5,22 +5,16 @@ import random
 from OpenGL.GL import *
 from OpenGL.GLU import *
 from OpenGL.GLUT import *
-# used: https://github.com/greenmoss/PyWavefront
-import pywavefront
+
+import particle, object
 
 width, height = (1280, 720)
 
 # for the light
 lightfv = ctypes.c_float * 4
 
-#The Gravitation
-gravitation = 9.81
-
 # gloabl var for later cam rotation on click
 startPhysics = 0
-
-#my dummy cube
-plane = ''
 
 # ASCII OCTAL for ESCAPE
 ESCAPE = '\033'
@@ -59,26 +53,23 @@ def display():
     glMatrixMode(GL_MODELVIEW)
 
 def drawLoop(deltaT):
-    global startPhysics, plane
+    global startPhysics, plane, flake
     # display all the stuff
     # which colors will be cleared (all here- without alpha) - every frame
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
     glLoadIdentity()
 
     # draw my plane
-    plane.draw()
+    print(plane.draw())
 
-    if startPhysics:
-        physics()
+    # draw y flake
+    flake.draw(deltaT)
+
     # swap the Buffers on Projection Matrix
     glutSwapBuffers()
 
     # LoopCallback Recursive
-    glutTimerFunc(1000/60, drawLoop, 0)
-
-def physics():
-    global plane
-    print("test")
+    glutTimerFunc(1000/60, drawLoop, 1000/60)
 
 def keyFunc(key, x, y):
     if key == ESCAPE:
@@ -88,11 +79,11 @@ def keyFunc(key, x, y):
 def mouseFunc(key, mode, x, y):
     global startPhysics
     if mode == 0 and key == 0:
-        startPhysics = not startPhysics
+        print("click")
     pass
 
 def init():
-    global plane
+    global plane, flake
     # Init OpenGL Utility Toolkit
     glutInit()
     # Init the Display Mode
@@ -110,12 +101,12 @@ def init():
 
     # set up a perspective projection matrix
     # void gluPerspective(	GLdouble fovy,	GLdouble aspect, GLdouble zNear, GLdouble zFar);
-    gluPerspective(40.0, float(width) / height, 1, 40.0)
+    gluPerspective(40.0, float(width) / height, 1, 300.0)
 
     # define a viewing transformation - Camera on Z axis 10 away
     # void gluLookAt(GLdouble eyeX, GLdouble eyeY, GLdouble eyeZ, GLdouble centerX, GLdouble centerY, GLdouble centerZ, GLdouble upX, GLdouble upY, GLdouble upZ);
     gluLookAt(0, 1, 5,
-              0, 1, 0,
+              0, 0, 0,
               0, 1, 0)
 
     # set MatrixMode for render
@@ -124,8 +115,11 @@ def init():
     # to have a callback function we need to add a display function
     glutDisplayFunc(display)
 
-    #load my cube
-    plane = pywavefront.Wavefront('resources/plane.obj')
+    #load my plane
+    plane = object.object([0,-1,0], 'resources/plane.obj')
+
+    # setup one particle
+    flake = particle.particle([0,1,0], 0.1, 1, 'resources/flake.obj')
 
     # callback for keystroke
     glutKeyboardFunc(keyFunc)
@@ -134,7 +128,7 @@ def init():
     glutMouseFunc(mouseFunc)
 
     # Timer function for the 60 fps draw callback
-    glutTimerFunc(1000/60, drawLoop, 0)
+    glutTimerFunc(1000/60, drawLoop, 1000/60)
 
     # glutMainLoop enters the GLUT event processing loop. This routine should be called at most once in a GLUT program.
     # Once called, this routine will never return. It will call as necessary any callbacks that have been registered.

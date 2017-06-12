@@ -1,9 +1,16 @@
 # Class for a single Particle
 # a Particle always has a position, velocity and a mass
 
-class particle():
-    def __init__(self, position, velocity, mass):
-        # every Particle has an own position
+from OpenGL.GL import *
+# used: https://github.com/greenmoss/PyWavefront
+import pywavefront, time
+
+# The Gravitation
+gravitation = -9.81
+
+class particle(object):
+    def __init__(self, position, velocity, mass, obj):
+        # every Particle has an own positionget_vert
         self.position = position
 
         # and an own velocity
@@ -12,15 +19,30 @@ class particle():
         # and an own mass
         self.mass = mass
 
+        # my obj
+        self.obj = pywavefront.Wavefront(obj)
+
     # apply the Force
-    def applyForce(self, force, dt):
+    def applyForce(self, dt):
+        global gravitation
+
         # old velocity added by the force given in dependence to Time gone and the mass
-        self.velocity = self.velocity + force * (dt / self.mass)
+        self.velocity = self.velocity + gravitation * (dt / self.mass)
 
     # new position has to be calculated
     def increment(self, dt):
+        t = time.clock()
+        passed = t - dt
+        # we want time passed in seconds
+        passed = passed/1000
+        self.applyForce(passed)
+
         # new position is old position + velocity in dependence to the time gone
-        self.position = self.position + self.velocity * dt
+        # @todo do for x and z too
+        #self.position[0] = self.position[0] + self.velocity * passed
+        # only Y for now
+        self.position[1] = self.position[1] + self.velocity * passed
+        #self.position[1] = self.position[2] + self.velocity * passed
 
     # some function to combine two particles to one @todo
     def combine(self, other):
@@ -32,3 +54,8 @@ class particle():
         self.mass = newMass
         self.velocity = newVel
         '''
+
+    def draw(self, deltaT):
+        self.increment(deltaT)
+        glTranslatef(self.position[0], self.position[1], self.position[2])
+        self.obj.draw()

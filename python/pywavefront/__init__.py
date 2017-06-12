@@ -54,7 +54,7 @@ class Wavefront(object):
 
     def draw(self):
         for this_mesh in self.mesh_list:
-            this_mesh.draw()
+            return(this_mesh.draw())
 
     def add_mesh(self, the_mesh):
         self.mesh_list.append(the_mesh)

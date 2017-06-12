@@ -107,6 +107,7 @@ class Material(object):
             self.triangle_count = len(self.vertices) / 8
         glInterleavedArrays(GL_T2F_N3F_V3F, 0, self.gl_floats)
         glDrawArrays(GL_TRIANGLES, 0, int(self.triangle_count))
+        return self.vertices
 
 
 class MaterialParser(parser.Parser):
