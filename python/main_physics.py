@@ -1,78 +1,84 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-
 import random
 
 from OpenGL.GL import *
 from OpenGL.GLU import *
 from OpenGL.GLUT import *
-
 # used: https://github.com/greenmoss/PyWavefront
 import pywavefront
 
 width, height = (1280, 720)
 
-# gloabl var for later cam rotation on click
-camRotation = 0
-
-# lightfv for our light
+# for the light
 lightfv = ctypes.c_float * 4
 
+#The Gravitation
+gravitation = 9.81
+
+# gloabl var for later cam rotation on click
+startPhysics = 0
+
 #my dummy cube
-cube = ''
+plane = ''
 
 # ASCII OCTAL for ESCAPE
 ESCAPE = '\033'
+
 
 def display():
     # gets called if glut thinks the window has to be redrawed (by click, resize...)
     # init displaying
     glLoadIdentity()
 
-    # enable depth  Test
+    # MatrixMode for setup
+    glMatrixMode(GL_PROJECTION)
+
+    # set ShadeModel
+    glShadeModel(GL_SMOOTH)
+
+    # enable if front and backface is rendered
+    glEnable(GL_CULL_FACE)
+
+    # enable depth Test
     glEnable(GL_DEPTH_TEST)
 
     # setup light - 2 lights for testing
     glLightfv(GL_LIGHT0, GL_POSITION, lightfv(-40, 200, 100, 0.0))
     glLightfv(GL_LIGHT0, GL_AMBIENT, lightfv(0.2, 0.2, 0.2, 1.0))
-    glLightfv(GL_LIGHT0, GL_DIFFUSE, lightfv(0.7, 0.7, 0.7, 1.0))
-
+    glLightfv(GL_LIGHT0, GL_DIFFUSE, lightfv(0.5, 0.5, 0.5, 1.0))
     glEnable(GL_LIGHT0)
 
     # enable Lighting and Shadows
     glEnable(GL_LIGHTING)
 
-    # GLOBAL light settings
-    glLightModelfv(GL_LIGHT_MODEL_AMBIENT, (0.1, 0.1, 0.1, 1))
-
-    # set ShadeModel
-    glShadeModel(GL_SMOOTH)
+    # enabling colored material
+    glEnable(GL_COLOR_MATERIAL)
 
     # set MatrixMode for render
     glMatrixMode(GL_MODELVIEW)
 
 def drawLoop(deltaT):
-    global pos, camRotation, cube
+    global startPhysics, plane
     # display all the stuff
     # which colors will be cleared (all here- without alpha) - every frame
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
     glLoadIdentity()
 
-    #rotate around camRotation
-    glRotatef(camRotation, 1, 1, 0)
+    # draw my plane
+    plane.draw()
 
-    # print my cube
-    cube.draw()
-
+    if startPhysics:
+        physics()
     # swap the Buffers on Projection Matrix
     glutSwapBuffers()
-
-    # increment camRotation
-    camRotation += 1
 
     # LoopCallback Recursive
     glutTimerFunc(1000/60, drawLoop, 0)
 
+def physics():
+    global plane
+    print("test")
 
 def keyFunc(key, x, y):
     if key == ESCAPE:
@@ -80,14 +86,13 @@ def keyFunc(key, x, y):
 
 
 def mouseFunc(key, mode, x, y):
-    global camRotation
+    global startPhysics
     if mode == 0 and key == 0:
-        print("click")
-        camRotation = 0
+        startPhysics = not startPhysics
     pass
 
 def init():
-    global cube
+    global plane
     # Init OpenGL Utility Toolkit
     glutInit()
     # Init the Display Mode
@@ -103,14 +108,14 @@ def init():
     # MatrixMode for setup
     glMatrixMode(GL_PROJECTION)
 
-    # set up a perspective projection matrix @todo it does not do anything right now
+    # set up a perspective projection matrix
     # void gluPerspective(	GLdouble fovy,	GLdouble aspect, GLdouble zNear, GLdouble zFar);
-    gluPerspective(40.0, float(width) / height, 1, 100.0)
+    gluPerspective(40.0, float(width) / height, 1, 40.0)
 
-    # define a viewing transformation - Camera on Z axis 10 away @todo it does not do anything
+    # define a viewing transformation - Camera on Z axis 10 away
     # void gluLookAt(GLdouble eyeX, GLdouble eyeY, GLdouble eyeZ, GLdouble centerX, GLdouble centerY, GLdouble centerZ, GLdouble upX, GLdouble upY, GLdouble upZ);
-    gluLookAt(0, 0, 10,
-              0, 0, 0,
+    gluLookAt(0, 1, 5,
+              0, 1, 0,
               0, 1, 0)
 
     # set MatrixMode for render
@@ -120,7 +125,7 @@ def init():
     glutDisplayFunc(display)
 
     #load my cube
-    cube = pywavefront.Wavefront('resources/cube.obj')
+    plane = pywavefront.Wavefront('resources/plane.obj')
 
     # callback for keystroke
     glutKeyboardFunc(keyFunc)

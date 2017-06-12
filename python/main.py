@@ -25,39 +25,6 @@ ESCAPE = '\033'
 
 cube = pywavefront.Wavefront('resources/cube.obj')
 
-def display():
-    # gets called if glut thinks the window has to be redrawed (by click, resize...)
-    # init displaying
-    glLoadIdentity()
-
-    # MatrixMode for setup
-    glMatrixMode(GL_PROJECTION)
-
-    # set ShadeModel
-    glShadeModel(GL_SMOOTH)
-
-    # enable if front and backface is rendered
-    glEnable(GL_CULL_FACE)
-
-    # enable depth Test
-    glEnable(GL_DEPTH_TEST)
-
-    # setup light - 2 lights for testing
-    glLightfv(GL_LIGHT0, GL_POSITION, lightfv(-40, 200, 100, 0.0))
-    glLightfv(GL_LIGHT0, GL_AMBIENT, lightfv(0.2, 0.2, 0.2, 1.0))
-    glLightfv(GL_LIGHT0, GL_DIFFUSE, lightfv(0.5, 0.5, 0.5, 1.0))
-
-    glEnable(GL_LIGHT0)
-
-    # enable Lighting and Shadows
-    glEnable(GL_LIGHTING)
-
-    # enabling colored material
-    glEnable(GL_COLOR_MATERIAL)
-
-    # set MatrixMode for render
-    glMatrixMode(GL_MODELVIEW)
-
 def drawLoop(deltaT):
     global pos, camRotation
     # display all the stuff
