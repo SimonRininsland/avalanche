@@ -22,6 +22,10 @@ class particle(object):
         # my obj
         self.obj = pywavefront.Wavefront(obj)
 
+        for x in self.obj.materials:
+            for y in x.vertices:
+                print y
+
     # apply the Force
     def applyForce(self, dt):
         global gravitation
