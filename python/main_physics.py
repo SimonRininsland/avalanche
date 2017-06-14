@@ -119,7 +119,7 @@ def init():
     plane = object.object([0,-1,0], 'resources/plane.obj')
 
     # setup one particle
-    flake = particle.particle([0,1,0], 0.1, 1, 'resources/flake.obj')
+    flake = particle.particle([0,1,0], [0.0, 0.0, 0.0], 1, 'resources/flake.obj')
 
     # callback for keystroke
     glutKeyboardFunc(keyFunc)

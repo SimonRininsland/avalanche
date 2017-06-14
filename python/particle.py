@@ -6,7 +6,7 @@ from OpenGL.GL import *
 import pywavefront, time
 
 # The Gravitation
-gravitation = -9.81
+gravitation = [0, -9.81, 0]
 
 class particle(object):
     def __init__(self, position, velocity, mass, obj):
@@ -22,16 +22,18 @@ class particle(object):
         # my obj
         self.obj = pywavefront.Wavefront(obj)
 
-        for x in self.obj.materials:
+        '''for x in self.obj.materials:
             for y in x.vertices:
-                print y
+                print y'''
 
     # apply the Force
     def applyForce(self, dt):
         global gravitation
 
         # old velocity added by the force given in dependence to Time gone and the mass
-        self.velocity = self.velocity + gravitation * (dt / self.mass)
+        self.velocity[0] = self.velocity[0] + gravitation[0] * (dt / self.mass)
+        self.velocity[1] = self.velocity[1] + gravitation[1] * (dt / self.mass)
+        self.velocity[2] = self.velocity[2] + gravitation[2] * (dt / self.mass)
 
     # new position has to be calculated
     def increment(self, dt):
@@ -42,11 +44,9 @@ class particle(object):
         self.applyForce(passed)
 
         # new position is old position + velocity in dependence to the time gone
-        # @todo do for x and z too
-        #self.position[0] = self.position[0] + self.velocity * passed
-        # only Y for now
-        self.position[1] = self.position[1] + self.velocity * passed
-        #self.position[1] = self.position[2] + self.velocity * passed
+        self.position[0] = self.position[0] + self.velocity[0] * passed
+        self.position[1] = self.position[1] + self.velocity[1] * passed
+        self.position[2] = self.position[2] + self.velocity[2] * passed
 
     # some function to combine two particles to one @todo
     def combine(self, other):
