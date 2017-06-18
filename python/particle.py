@@ -22,10 +22,6 @@ class particle(object):
         # my obj
         self.obj = pywavefront.Wavefront(obj)
 
-        '''for x in self.obj.materials:
-            for y in x.vertices:
-                print y'''
-
     # apply the Force
     def applyForce(self, dt):
         global gravitation
@@ -63,3 +59,9 @@ class particle(object):
         self.increment(deltaT)
         glTranslatef(self.position[0], self.position[1], self.position[2])
         self.obj.draw()
+
+    def getBound(self):
+        xs = [v[0] for v in self.obj.vertx]
+        ys = [v[1] for v in self.obj.vertx]
+        zs = [v[2] for v in self.obj.vertx]
+        return (min(xs), max(xs), min(ys), max(ys), min(zs), max(zs))

@@ -57,11 +57,13 @@ def keyFunc(key, x, y):
 
 
 def mouseFunc(key, mode, x, y):
-    if mode:
-        print x, y
-
     if mode == 0 and key == 0:
-        print("click")
+        randPos(1)
+    if mode == 0 and key == 2:
+        randPos(10)
+    if mode == 0 and key == 1:
+        randPos(100)
+    print len(pos)
     pass
 
 

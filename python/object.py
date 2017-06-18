@@ -5,6 +5,7 @@ from OpenGL.GL import *
 # used: https://github.com/greenmoss/PyWavefront
 import pywavefront
 
+
 class object():
     def __init__(self, position, obj):
         # every Object has an own position
@@ -16,6 +17,11 @@ class object():
     def draw(self):
         glTranslatef(self.position[0], self.position[1], self.position[2])
         # An Object needs only a function to get drawn
-        #print(self.obj.__getattribute__('width'))
-        return(self.obj.draw())
+        # print(self.obj.__getattribute__('width'))
+        return (self.obj.draw())
 
+    def getBound(self):
+        xs = [v[0] for v in self.obj.vertx]
+        ys = [v[1] for v in self.obj.vertx]
+        zs = [v[2] for v in self.obj.vertx]
+        return (min(xs), max(xs), min(ys), max(ys), min(zs), max(zs))

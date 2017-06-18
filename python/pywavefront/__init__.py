@@ -50,7 +50,9 @@ class Wavefront(object):
         self.meshes = {}        # Name mapping
         self.mesh_list = []     # Also includes anonymous meshes
 
-        ObjParser(self, self.file_name)
+        tmp = ObjParser(self, self.file_name)
+
+        self.vertx = tmp.vertices
 
     def draw(self):
         for this_mesh in self.mesh_list:
