@@ -6,19 +6,18 @@ from OpenGL.GL import *
 from OpenGL.GLU import *
 from OpenGL.GLUT import *
 
-import particle, object
+import particle, object, world
 
 width, height = (1280, 720)
 
 # for the light
 lightfv = ctypes.c_float * 4
 
-# gloabl var for later cam rotation on click
-startPhysics = 0
-
 # ASCII OCTAL for ESCAPE
 ESCAPE = '\033'
 
+# my object array
+drawObjectsArray = []
 
 def display():
     # gets called if glut thinks the window has to be redrawed (by click, resize...)
@@ -53,17 +52,25 @@ def display():
     glMatrixMode(GL_MODELVIEW)
 
 def drawLoop(deltaT):
-    global startPhysics, plane, flake
+    global world, drawObjectsArray
     # display all the stuff
     # which colors will be cleared (all here- without alpha) - every frame
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
     glLoadIdentity()
 
-    # draw my plane
-    print(plane.draw())
+    # draw all my objects
+    for index, drawObject in enumerate(drawObjectsArray):
+        # @todo for optimization we should trigger one plane.draw() in display and write only once in collisionArray
+        # @todo we could put the collisionBox stuff in the Objects itself
 
-    # draw y flake
-    flake.draw(deltaT)
+        # draw my object
+        drawObject.draw(deltaT)
+
+        # add collision Grid to my world
+        world.collisionGrid[index] = drawObject.getCollisionBox()
+
+    # check for collision @todo not the best place here
+    world.checkCollision(drawObjectsArray)
 
     # swap the Buffers on Projection Matrix
     glutSwapBuffers()
@@ -77,13 +84,11 @@ def keyFunc(key, x, y):
 
 
 def mouseFunc(key, mode, x, y):
-    global startPhysics
     if mode == 0 and key == 0:
         print("click")
-    pass
 
 def init():
-    global plane, flake
+    global world, drawObjectsArray
     # Init OpenGL Utility Toolkit
     glutInit()
     # Init the Display Mode
@@ -115,11 +120,14 @@ def init():
     # to have a callback function we need to add a display function
     glutDisplayFunc(display)
 
-    #load my plane
-    plane = object.object([0,-1,0], 'resources/plane.obj')
+    # load my plane
+    drawObjectsArray.append(object.object([0,-1,0], 'resources/plane.obj'))
 
     # setup one particle
-    flake = particle.particle([0,1,0], [0.0, 0.0, 0.0], 1, 'resources/flake.obj')
+    drawObjectsArray.append(particle.particle([0,1,0], [0.0, 0.0, 0.0], 1, 'resources/flake.obj'))
+
+    # create our world
+    world = world.World([0] * len(drawObjectsArray))
 
     # callback for keystroke
     glutKeyboardFunc(keyFunc)

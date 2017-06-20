@@ -6,3 +6,4 @@ class Grid:
         self.vol = np.full((2,3),gridSize)
 
     def check(self):
+        print("test")

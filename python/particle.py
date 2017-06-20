@@ -44,6 +44,9 @@ class particle(object):
         self.position[1] = self.position[1] + self.velocity[1] * passed
         self.position[2] = self.position[2] + self.velocity[2] * passed
 
+        # check if there is some collision on new spot
+        #self.checkCollision()
+
     # some function to combine two particles to one @todo
     def combine(self, other):
         '''
@@ -65,3 +68,19 @@ class particle(object):
         ys = [v[1] for v in self.obj.vertx]
         zs = [v[2] for v in self.obj.vertx]
         return (min(xs), max(xs), min(ys), max(ys), min(zs), max(zs))
+
+    # BoundingBox in Relation to the Position
+    def getCollisionBox(self):
+        bound = self.getBound()
+        # min(xs), max(xs), min(ys), max(ys), min(zs), max(zs) + position on axis
+        # X - Axis min / max
+        # Y - Axis min / max
+        # Z - Axis min / max
+        return (bound[0] + self.position[0], bound[1] + self.position[0],
+                bound[2] + self.position[1], bound[3] + self.position[1],
+                bound[4] + self.position[2], bound[5] + self.position[2])
+
+    def collision(self):
+        # very not correct collision handling at the moment @todo everything
+        self.velocity[1] = - self.velocity[1]
+        print("WAAAAAAAAAAAAAAAH COLLISION in Particle!!!")
