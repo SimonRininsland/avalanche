@@ -44,9 +44,6 @@ class particle(object):
         self.position[1] = self.position[1] + self.velocity[1] * passed
         self.position[2] = self.position[2] + self.velocity[2] * passed
 
-        # check if there is some collision on new spot
-        #self.checkCollision()
-
     # some function to combine two particles to one @todo
     def combine(self, other):
         '''
@@ -82,5 +79,7 @@ class particle(object):
 
     def collision(self):
         # very not correct collision handling at the moment @todo everything
-        self.velocity[1] = - self.velocity[1]
+        self.velocity[0] = -self.velocity[0]
+        self.velocity[1] = -self.velocity[1]
+        self.velocity[2] = -self.velocity[2]
         print("WAAAAAAAAAAAAAAAH COLLISION in Particle!!!")

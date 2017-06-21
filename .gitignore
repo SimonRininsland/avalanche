@@ -1,6 +1,5 @@
 .idea/
-documentation/*.log
-documentation/*.aux
-documentation/*.gz
-python/*.pyc
-python/pywavefront/*.pyc
+*.log
+*.aux
+*.gz
+*.pyc

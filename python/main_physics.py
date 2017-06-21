@@ -123,8 +123,11 @@ def init():
     # load my plane
     drawObjectsArray.append(object.object([0,-1,0], 'resources/plane.obj'))
 
-    # setup one particle
+    # setup one particle position, velocity, mass, obj
     drawObjectsArray.append(particle.particle([0,1,0], [0.0, 0.0, 0.0], 1, 'resources/flake.obj'))
+
+    # setup one particle position, velocity, mass, obj
+    drawObjectsArray.append(particle.particle([0.5,1,0], [0.0, 0.0, 0.0], 1, 'resources/flake.obj'))
 
     # create our world
     world = world.World([0] * len(drawObjectsArray))
