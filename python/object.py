@@ -18,6 +18,35 @@ class object():
         glTranslatef(self.position[0], self.position[1], self.position[2])
         # An Object needs only a function to get drawn
         # print(self.obj.__getattribute__('width'))
+
+
+
+        tmp = self.getBound()
+        glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+        glBegin(GL_POLYGON)
+        glVertex3f(tmp[0],tmp[2],tmp[4])
+        glVertex3f(tmp[1],tmp[2],tmp[4])
+        glVertex3f(tmp[1],tmp[3],tmp[4])
+        glVertex3f(tmp[0],tmp[3],tmp[4])
+
+        glVertex3f(tmp[0],tmp[2],tmp[5])
+        glVertex3f(tmp[1],tmp[2],tmp[5])
+        glVertex3f(tmp[1],tmp[3],tmp[5])
+        glVertex3f(tmp[0],tmp[3],tmp[5])
+
+        glVertex3f(tmp[0],tmp[2],tmp[4])
+        glVertex3f(tmp[0],tmp[3],tmp[4])
+        glVertex3f(tmp[0],tmp[3],tmp[5])
+        glVertex3f(tmp[0],tmp[2],tmp[5])
+
+        glVertex3f(tmp[1],tmp[2],tmp[4])
+        glVertex3f(tmp[1],tmp[3],tmp[4])
+        glVertex3f(tmp[1],tmp[3],tmp[5])
+        glVertex3f(tmp[1],tmp[2],tmp[5])
+
+        glEnd()
+        glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+
         return (self.obj.draw())
 
     def getBound(self):

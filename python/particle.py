@@ -4,11 +4,12 @@
 from OpenGL.GL import *
 # used: https://github.com/greenmoss/PyWavefront
 import pywavefront, time
+import object
 
 # The Gravitation
 gravitation = [0, -9.81, 0]
 
-class particle(object):
+class particle(object.object):
     def __init__(self, position, velocity, mass, obj):
         # every Particle has an own positionget_vert
         self.position = position
@@ -55,10 +56,37 @@ class particle(object):
         self.velocity = newVel
         '''
 
+
     def draw(self, deltaT):
         self.increment(deltaT)
         glTranslatef(self.position[0], self.position[1], self.position[2])
         self.obj.draw()
+
+        tmp = self.getBound()
+        glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+        glBegin(GL_POLYGON)
+        glVertex3f(tmp[0],tmp[2],tmp[4])
+        glVertex3f(tmp[1],tmp[2],tmp[4])
+        glVertex3f(tmp[1],tmp[3],tmp[4])
+        glVertex3f(tmp[0],tmp[3],tmp[4])
+
+        glVertex3f(tmp[0],tmp[2],tmp[5])
+        glVertex3f(tmp[1],tmp[2],tmp[5])
+        glVertex3f(tmp[1],tmp[3],tmp[5])
+        glVertex3f(tmp[0],tmp[3],tmp[5])
+
+        glVertex3f(tmp[0],tmp[2],tmp[4])
+        glVertex3f(tmp[0],tmp[3],tmp[4])
+        glVertex3f(tmp[0],tmp[3],tmp[5])
+        glVertex3f(tmp[0],tmp[2],tmp[5])
+
+        glVertex3f(tmp[1],tmp[2],tmp[4])
+        glVertex3f(tmp[1],tmp[3],tmp[4])
+        glVertex3f(tmp[1],tmp[3],tmp[5])
+        glVertex3f(tmp[1],tmp[2],tmp[5])
+
+        glEnd()
+        glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 
     def getBound(self):
         xs = [v[0] for v in self.obj.vertx]
