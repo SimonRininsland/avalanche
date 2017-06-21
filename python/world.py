@@ -18,9 +18,11 @@ class World(object):
 
         for cOid, collisionObject in enumerate(self.collisionGrid):
             for oOid, obstacleObject in enumerate(self.collisionGrid):
+
+                # do not collide with myself
                 if cOid != oOid:
 
-                    # Bounds from obejct:
+                    # Bounds from object:
                     # (min(xs), max(xs), min(ys), max(ys), min(zs), max(zs)) '''
                     collision = ((collisionObject[1] >= obstacleObject[0] and collisionObject[1] <= obstacleObject[1])
                                    or (

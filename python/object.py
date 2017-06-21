@@ -3,7 +3,7 @@
 
 from OpenGL.GL import *
 # used: https://github.com/greenmoss/PyWavefront
-import pywavefront
+import pywavefront, time
 
 
 class object():
@@ -14,40 +14,39 @@ class object():
         # The obj
         self.obj = pywavefront.Wavefront(obj)
 
-    def draw(self, detaT):
+    def increment(self, dt):
+        pass
+
+    def draw(self, deltaT):
+        self.increment(deltaT)
         glTranslatef(self.position[0], self.position[1], self.position[2])
-        # An Object needs only a function to get drawn
-        # print(self.obj.__getattribute__('width'))
-
-
+        self.obj.draw()
 
         tmp = self.getBound()
         glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
         glBegin(GL_POLYGON)
-        glVertex3f(tmp[0],tmp[2],tmp[4])
-        glVertex3f(tmp[1],tmp[2],tmp[4])
-        glVertex3f(tmp[1],tmp[3],tmp[4])
-        glVertex3f(tmp[0],tmp[3],tmp[4])
+        glVertex3f(tmp[0], tmp[2], tmp[4])
+        glVertex3f(tmp[1], tmp[2], tmp[4])
+        glVertex3f(tmp[1], tmp[3], tmp[4])
+        glVertex3f(tmp[0], tmp[3], tmp[4])
 
-        glVertex3f(tmp[0],tmp[2],tmp[5])
-        glVertex3f(tmp[1],tmp[2],tmp[5])
-        glVertex3f(tmp[1],tmp[3],tmp[5])
-        glVertex3f(tmp[0],tmp[3],tmp[5])
+        glVertex3f(tmp[0], tmp[2], tmp[5])
+        glVertex3f(tmp[1], tmp[2], tmp[5])
+        glVertex3f(tmp[1], tmp[3], tmp[5])
+        glVertex3f(tmp[0], tmp[3], tmp[5])
 
-        glVertex3f(tmp[0],tmp[2],tmp[4])
-        glVertex3f(tmp[0],tmp[3],tmp[4])
-        glVertex3f(tmp[0],tmp[3],tmp[5])
-        glVertex3f(tmp[0],tmp[2],tmp[5])
+        glVertex3f(tmp[0], tmp[2], tmp[4])
+        glVertex3f(tmp[0], tmp[3], tmp[4])
+        glVertex3f(tmp[0], tmp[3], tmp[5])
+        glVertex3f(tmp[0], tmp[2], tmp[5])
 
-        glVertex3f(tmp[1],tmp[2],tmp[4])
-        glVertex3f(tmp[1],tmp[3],tmp[4])
-        glVertex3f(tmp[1],tmp[3],tmp[5])
-        glVertex3f(tmp[1],tmp[2],tmp[5])
+        glVertex3f(tmp[1], tmp[2], tmp[4])
+        glVertex3f(tmp[1], tmp[3], tmp[4])
+        glVertex3f(tmp[1], tmp[3], tmp[5])
+        glVertex3f(tmp[1], tmp[2], tmp[5])
 
         glEnd()
-        glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-
-        return (self.obj.draw())
+        glPolygonMode(GL_FRONT_AND_BACK, GL_FILL)
 
     def getBound(self):
         xs = [v[0] for v in self.obj.vertx]
