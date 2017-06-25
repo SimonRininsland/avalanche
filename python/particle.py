@@ -9,6 +9,7 @@ import object
 # The Gravitation
 gravitation = [0, -9.81, 0]
 
+
 class particle(object.object):
     def __init__(self, position, velocity, mass, obj):
         # every Particle has an own positionget_vert
@@ -37,7 +38,7 @@ class particle(object.object):
         t = time.clock()
         passed = t - dt
         # we want time passed in seconds
-        passed = passed/1000
+        passed = passed / 1000
         self.applyForce(passed)
 
         # new position is old position + velocity in dependence to the time gone
@@ -56,9 +57,19 @@ class particle(object.object):
         self.velocity = newVel
         '''
 
-    def collision(self):
+    def collision(self, obj):
+        tmpP = self.getBound()
+        tmpO = obj.getBound()
+        isColliding = (((tmpP[1] - self.position[0]) >= (tmpO[0] - obj.position[0]) and (tmpP[1] - self.position[0]) <= (tmpO[1] - obj.position[0]))\
+                       or ((tmpP[0] - self.position[0])<= (tmpO[1] - obj.position[0])and (tmpP[0] - self.position[0])>= (tmpO[0] - obj.position[0]))) \
+                      and (((tmpP[3] - self.position[1])>= (tmpO[2] - obj.position[1])and (tmpP[3] - self.position[1])<= (tmpO[3] - obj.position[1])) \
+                           or ((tmpP[2] - self.position[1])<= (tmpO[3] - obj.position[1])and (tmpP[2] - self.position[1])>= (tmpO[2] - obj.position[1]))) \
+                      and (((tmpP[5] - self.position[2])>= (tmpO[4] - obj.position[2]) and (tmpP[5] - self.position[2])<= (tmpO[5] - obj.position[2])) \
+                           or ((tmpP[4] - self.position[2])<= (tmpO[5] - obj.position[2]) and (tmpP[4] - self.position[2])>= (tmpO[4] - obj.position[2])))
+
         # very not correct collision handling at the moment @todo everything
-        self.velocity[0] = -self.velocity[0]
-        self.velocity[1] = -self.velocity[1]
-        self.velocity[2] = -self.velocity[2]
-        print("WAAAAAAAAAAAAAAAH COLLISION in Particle!!!")
+        if isColliding:
+            self.velocity[0] = -self.velocity[0]
+            self.velocity[1] = -self.velocity[1]
+            self.velocity[2] = -self.velocity[2]
+            print("WAAAAAAAAAAAAAAAH COLLISION in Particle!!!")
