@@ -61,8 +61,10 @@ def drawLoop(deltaT):
 
     # draw all my objects
     for index in xrange(len(drawObjectsArray)):
-        if isinstance(drawObjectsArray[index], particle.particle):
-            drawObjectsArray[index].collision(drawObjectsArray[0])
+        for index2 in xrange(len(drawObjectsArray)):
+            if index != index2:
+                if isinstance(drawObjectsArray[index], particle.particle):
+                    drawObjectsArray[index].collision(drawObjectsArray[index2])
 
         # draw my object
         drawObjectsArray[index].draw(deltaT)
@@ -127,6 +129,9 @@ def init():
     for i in xrange(flakeCount):
 
         drawObjectsArray.append(particle.particle([uniform(-1.0, 1.0), uniform(1.0, 3.0), uniform(-1.0, 1.0)], [0.0, 0.0, 0.0], 1, 'resources/flake.obj'))
+
+    # drawObjectsArray.append(particle.particle([0.3, 1, 0], [0.0, 0.0, 0.0], 1, 'resources/flake.obj'))
+    # drawObjectsArray.append(particle.particle([0, 3, 0], [0.0, 0.0, 0.0], 1, 'resources/flake.obj'))
 
     # callback for keystroke
     glutKeyboardFunc(keyFunc)

@@ -1,8 +1,10 @@
 # Class for a single Particle
 # a Particle always has a position, velocity and a mass
-
+import math
 from OpenGL.GL import *
 # used: https://github.com/greenmoss/PyWavefront
+from nltk.metrics import distance
+
 import pywavefront
 import object
 
@@ -36,7 +38,7 @@ class particle(object.object):
     # new position has to be calculated
     def increment(self, dt):
         # we want time passed in seconds
-        passed = float(dt)/1000
+        passed = float(dt) / 1000
         self.applyForce(passed)
 
         # new position is old position + velocity in dependence to the time gone
@@ -55,15 +57,43 @@ class particle(object.object):
         self.velocity = newVel
         '''
 
+    def getBound(self):
+        xs = [v[0] for v in self.obj.vertx]
+        ys = [v[1] for v in self.obj.vertx]
+        zs = [v[2] for v in self.obj.vertx]
+
+        r = (max(xs) - min(xs)) / 2
+
+        x = max(xs) - r
+        y = max(xs) - r
+        z = max(xs) - r
+
+        # return (min(xs), max(xs), min(ys), max(ys), min(zs), max(zs))
+        return (x, y, z, r)
+
     def collision(self, obj):
         tmpP = self.getBound()
         tmpO = obj.getBound()
-        isColliding = (((tmpP[1] - self.position[0]) >= (tmpO[0] - obj.position[0]) and (tmpP[1] - self.position[0]) <= (tmpO[1] - obj.position[0]))\
-                       or ((tmpP[0] - self.position[0])<= (tmpO[1] - obj.position[0])and (tmpP[0] - self.position[0])>= (tmpO[0] - obj.position[0]))) \
-                      and (((tmpP[3] - self.position[1])>= (tmpO[2] - obj.position[1])and (tmpP[3] - self.position[1])<= (tmpO[3] - obj.position[1])) \
-                           or ((tmpP[2] - self.position[1])<= (tmpO[3] - obj.position[1])and (tmpP[2] - self.position[1])>= (tmpO[2] - obj.position[1]))) \
-                      and (((tmpP[5] - self.position[2])>= (tmpO[4] - obj.position[2]) and (tmpP[5] - self.position[2])<= (tmpO[5] - obj.position[2])) \
-                           or ((tmpP[4] - self.position[2])<= (tmpO[5] - obj.position[2]) and (tmpP[4] - self.position[2])>= (tmpO[4] - obj.position[2])))
+        isColliding = False
+        if isinstance(obj, particle):
+            distance = math.sqrt(
+                math.pow((tmpP[0] - self.position[0]) - (tmpO[0] - obj.position[0]), 2) +
+                math.pow((tmpP[1] - self.position[1]) - (tmpO[1] - obj.position[1]), 2) +
+                math.pow((tmpP[2] - self.position[2]) - (tmpO[2] - obj.position[2]), 2)
+            )
+            isColliding = distance < (tmpP[3] + tmpO[3])
+
+        # @todo still has an error calculation with the position has to be fixed
+        elif isinstance(obj, object.object):
+            x = max((tmpO[0] - obj.position[0]), min((tmpP[0] - self.position[0]), (tmpO[1] - obj.position[0])))
+            y = max((tmpO[2] - obj.position[1]), min((tmpP[1] - self.position[1]), (tmpO[3] - obj.position[1])))
+            z = max((tmpO[4] - obj.position[2]), min((tmpP[2] - self.position[2]), (tmpO[5] - obj.position[2])))
+            distance = math.sqrt(
+                math.pow(((x - obj.position[0]) - (tmpP[0] - self.position[0])), 2) +
+                math.pow(((y - obj.position[1]) - (tmpP[1] - self.position[1])), 2) +
+                math.pow(((z - obj.position[2]) - (tmpP[2] - self.position[2])), 2)
+            )
+            isColliding = distance < tmpP[3]
 
         # very not correct collision handling at the moment @todo everything
         if isColliding:
