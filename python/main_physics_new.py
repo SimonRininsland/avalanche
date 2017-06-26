@@ -2,7 +2,6 @@
 # -*- coding: utf-8 -*-
 from random import uniform
 
-from Crypto.Cipher._mode_ccm import enum
 from OpenGL.GL import *
 from OpenGL.GLU import *
 from OpenGL.GLUT import *

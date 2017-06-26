@@ -3,7 +3,7 @@
 
 from OpenGL.GL import *
 # used: https://github.com/greenmoss/PyWavefront
-import pywavefront, time
+import pywavefront
 import object
 
 # The Gravitation
@@ -35,10 +35,8 @@ class particle(object.object):
 
     # new position has to be calculated
     def increment(self, dt):
-        t = time.clock()
-        passed = t - dt
         # we want time passed in seconds
-        passed = passed / 1000
+        passed = float(dt)/1000
         self.applyForce(passed)
 
         # new position is old position + velocity in dependence to the time gone

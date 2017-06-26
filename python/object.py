@@ -3,7 +3,7 @@
 
 from OpenGL.GL import *
 # used: https://github.com/greenmoss/PyWavefront
-import pywavefront, time
+import pywavefront
 
 
 class object():
