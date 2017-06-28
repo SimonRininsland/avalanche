@@ -57,11 +57,11 @@ class particle(object.object):
     def getBound(self):
         xs = [v[0] for v in self.obj.vertx]
 
-        r = (max(xs) - min(xs)) / 2
+        r = ((max(xs) - min(xs))* self.mass / 2)
 
-        x = max(xs) - r
-        y = max(xs) - r
-        z = max(xs) - r
+        x = (max(xs) - r)
+        y = (max(xs) - r)
+        z = (max(xs) - r)
 
         return (x, y, z, r)
 
@@ -89,9 +89,9 @@ class particle(object.object):
             y = max((tmpO[2] - obj.position[1]), min((tmpP[1] - self.position[1]), (tmpO[3] - obj.position[1])))
             z = max((tmpO[4] - obj.position[2]), min((tmpP[2] - self.position[2]), (tmpO[5] - obj.position[2])))
             distance = math.sqrt(
-                math.pow(((x - obj.position[0]) - (tmpP[0] - self.position[0])), 2) +
-                math.pow(((y - obj.position[1]) - (tmpP[1] - self.position[1])), 2) +
-                math.pow(((z - obj.position[2]) - (tmpP[2] - self.position[2])), 2)
+                math.pow((x - (tmpP[0] - self.position[0])), 2) +
+                math.pow((y - (tmpP[1] - self.position[1])), 2) +
+                math.pow((z - (tmpP[2] - self.position[2])), 2)
             )
             isColliding = distance < tmpP[3]
 

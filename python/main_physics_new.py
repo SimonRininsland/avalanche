@@ -126,7 +126,7 @@ def init():
     # setup one particle position, velocity, mass, obj
     for i in xrange(flakeCount):
 
-        drawObjectsArray.append(particle.particle([uniform(-1.0, 1.0), uniform(1.0, 3.0), uniform(-1.0, 1.0)], [0.0, 0.0, 0.0], 1, 'resources/flake.obj'))
+        drawObjectsArray.append(particle.particle([uniform(-1.0, 1.0), uniform(1.0, 3.0), uniform(-1.0, 1.0)], [0.0, 0.0, 0.0], uniform(.2, 1.0), 'resources/flake.obj'))
 
     # drawObjectsArray.append(particle.particle([0.3, 1, 0], [0.0, 0.0, 0.0], 1, 'resources/flake.obj'))
     # drawObjectsArray.append(particle.particle([0, 3, 0], [0.0, 0.0, 0.0], 1, 'resources/flake.obj'))

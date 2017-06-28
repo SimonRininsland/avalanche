@@ -12,6 +12,8 @@ class object():
         # every Object has an own position
         self.position = position
 
+        self.mass = 1
+
         # The obj
         self.obj = pywavefront.Wavefront(obj)
 
@@ -21,6 +23,7 @@ class object():
     def draw(self, deltaT):
         self.increment(deltaT)
         glTranslatef(self.position[0], self.position[1], self.position[2])
+        glScalef(self.mass,self.mass,self.mass)
         self.obj.draw()
         ##### WIRED FRAME #####
         # tmp = self.getBound()
@@ -50,6 +53,7 @@ class object():
         # glPolygonMode(GL_FRONT_AND_BACK, GL_FILL)
 
         glTranslatef(-self.position[0], -self.position[1], -self.position[2])
+
 
     def getBound(self):
         xs = [v[0] for v in self.obj.vertx]
