@@ -1,9 +1,6 @@
 # Class for a single Particle
 # a Particle always has a position, velocity and a mass
 import math
-from OpenGL.GL import *
-# used: https://github.com/greenmoss/PyWavefront
-from nltk.metrics import distance
 
 import pywavefront
 import object
@@ -59,8 +56,6 @@ class particle(object.object):
 
     def getBound(self):
         xs = [v[0] for v in self.obj.vertx]
-        ys = [v[1] for v in self.obj.vertx]
-        zs = [v[2] for v in self.obj.vertx]
 
         r = (max(xs) - min(xs)) / 2
 
@@ -68,10 +63,15 @@ class particle(object.object):
         y = max(xs) - r
         z = max(xs) - r
 
-        # return (min(xs), max(xs), min(ys), max(ys), min(zs), max(zs))
         return (x, y, z, r)
 
-    def collision(self, obj):
+    def collisionResponse(self):
+        self.velocity[0] = -self.velocity[0]
+        self.velocity[1] = -self.velocity[1]
+        self.velocity[2] = -self.velocity[2]
+
+
+    def collisionDetection(self, obj):
         tmpP = self.getBound()
         tmpO = obj.getBound()
         isColliding = False
@@ -97,7 +97,6 @@ class particle(object.object):
 
         # very not correct collision handling at the moment @todo everything
         if isColliding:
-            self.velocity[0] = -self.velocity[0]
-            self.velocity[1] = -self.velocity[1]
-            self.velocity[2] = -self.velocity[2]
-            print("WAAAAAAAAAAAAAAAH COLLISION in Particle!!!")
+            self.collisionResponse()
+            obj.collisionResponse()
+

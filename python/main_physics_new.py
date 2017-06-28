@@ -61,10 +61,8 @@ def drawLoop(deltaT):
 
     # draw all my objects
     for index in xrange(len(drawObjectsArray)):
-        for index2 in xrange(len(drawObjectsArray)):
-            if index != index2:
-                if isinstance(drawObjectsArray[index], particle.particle):
-                    drawObjectsArray[index].collision(drawObjectsArray[index2])
+        for index2 in range(index+1, len(drawObjectsArray)):
+                    drawObjectsArray[index].collisionDetection(drawObjectsArray[index2])
 
         # draw my object
         drawObjectsArray[index].draw(deltaT)

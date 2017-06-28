@@ -4,6 +4,7 @@
 from OpenGL.GL import *
 # used: https://github.com/greenmoss/PyWavefront
 import pywavefront
+import particle
 
 
 class object():
@@ -67,5 +68,10 @@ class object():
                 bound[2] + self.position[1], bound[3] + self.position[1],
                 bound[4] + self.position[2], bound[5] + self.position[2])
 
-    def collision(self):
-        print("WAAAAAAAAAAAAAAAH COLLISION in Object!!!")
+    def collisionDetection(self, obj):
+        if isinstance(obj, particle.particle):
+            obj.collisionDetection(self)
+
+
+    def collisionResponse(self):
+        pass
