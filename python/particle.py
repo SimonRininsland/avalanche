@@ -66,6 +66,7 @@ class particle(object.object):
         return (x, y, z, r)
 
     def collisionResponse(self):
+        # very not correct collision handling at the moment @todo everything
         self.velocity[0] = -self.velocity[0]
         self.velocity[1] = -self.velocity[1]
         self.velocity[2] = -self.velocity[2]
@@ -83,7 +84,6 @@ class particle(object.object):
             )
             isColliding = distance < (tmpP[3] + tmpO[3])
 
-        # @todo still has an error calculation with the position has to be fixed
         elif isinstance(obj, object.object):
             x = max((tmpO[0] - obj.position[0]), min((tmpP[0] - self.position[0]), (tmpO[1] - obj.position[0])))
             y = max((tmpO[2] - obj.position[1]), min((tmpP[1] - self.position[1]), (tmpO[3] - obj.position[1])))
@@ -95,7 +95,6 @@ class particle(object.object):
             )
             isColliding = distance < tmpP[3]
 
-        # very not correct collision handling at the moment @todo everything
         if isColliding:
             self.collisionResponse()
             obj.collisionResponse()

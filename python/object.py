@@ -23,7 +23,7 @@ class object():
     def draw(self, deltaT):
         self.increment(deltaT)
         glTranslatef(self.position[0], self.position[1], self.position[2])
-        glScalef(self.mass,self.mass,self.mass)
+        #glScalef(self.mass,self.mass,self.mass)
         self.obj.draw()
         ##### WIRED FRAME #####
         # tmp = self.getBound()
