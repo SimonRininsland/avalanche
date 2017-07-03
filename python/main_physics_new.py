@@ -61,16 +61,14 @@ def drawLoop(deltaT):
 
     # draw all my objects
     for index in xrange(len(drawObjectsArray)):
+
+        # check for collision
         for index2 in range(index+1, len(drawObjectsArray)):
                     drawObjectsArray[index].collisionDetection(drawObjectsArray[index2])
 
         # draw my object
         drawObjectsArray[index].draw(deltaT)
 
-
-
-    # check for collision @todo not the best place here
-    # world.checkCollision(drawObjectsArray)
 
     # swap the Buffers on Projection Matrix
     glutSwapBuffers()
@@ -122,14 +120,12 @@ def init():
 
     # load my plane
     drawObjectsArray.append(object.object([0,-1,0], 'resources/plane.obj'))
+    world = world.world()
 
     # setup one particle position, velocity, mass, obj
     for i in xrange(flakeCount):
+        drawObjectsArray.append(particle.particle([uniform(-1.0, 1.0), uniform(1.0, 3.0), uniform(-1.0, 1.0)], [0.0, 0.0, 0.0], uniform(.2, 1.0), 'resources/flake.obj', world))
 
-        drawObjectsArray.append(particle.particle([uniform(-1.0, 1.0), uniform(1.0, 3.0), uniform(-1.0, 1.0)], [0.0, 0.0, 0.0], uniform(.2, 1.0), 'resources/flake.obj'))
-
-    # drawObjectsArray.append(particle.particle([0.3, 1, 0], [0.0, 0.0, 0.0], 1, 'resources/flake.obj'))
-    # drawObjectsArray.append(particle.particle([0, 3, 0], [0.0, 0.0, 0.0], 1, 'resources/flake.obj'))
 
     # callback for keystroke
     glutKeyboardFunc(keyFunc)
