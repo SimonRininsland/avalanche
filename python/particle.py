@@ -95,6 +95,14 @@ class particle(object.object):
             )
             isColliding = distance < tmpP[3]
 
+        elif False:
+            distance = math.sqrt(
+                math.pow((tmpO[0] - obj.position[0]) - (tmpP[0] - self.position[0]), 2) +
+                math.pow((tmpO[1] - obj.position[1]) - (tmpP[1] - self.position[1]), 2) +
+                math.pow((tmpO[2] - obj.position[2]) - (tmpP[2] - self.position[2]), 2)
+            )
+            isColliding = distance < tmpP[3]
+
         if isColliding:
             self.collisionResponse()
             obj.collisionResponse()
