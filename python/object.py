@@ -4,7 +4,7 @@
 from OpenGL.GL import *
 # used: https://github.com/greenmoss/PyWavefront
 import pywavefront
-import particle
+import particle, world
 
 
 class object():
@@ -25,32 +25,6 @@ class object():
         glTranslatef(self.position[0], self.position[1], self.position[2])
         #glScalef(self.mass,self.mass,self.mass)
         self.obj.draw()
-        ##### WIRED FRAME #####
-        # tmp = self.getBound()
-        # glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-        # glBegin(GL_POLYGON)
-        # glVertex3f(tmp[0], tmp[2], tmp[4])
-        # glVertex3f(tmp[1], tmp[2], tmp[4])
-        # glVertex3f(tmp[1], tmp[3], tmp[4])
-        # glVertex3f(tmp[0], tmp[3], tmp[4])
-        #
-        # glVertex3f(tmp[0], tmp[2], tmp[5])
-        # glVertex3f(tmp[1], tmp[2], tmp[5])
-        # glVertex3f(tmp[1], tmp[3], tmp[5])
-        # glVertex3f(tmp[0], tmp[3], tmp[5])
-        #
-        # glVertex3f(tmp[0], tmp[2], tmp[4])
-        # glVertex3f(tmp[0], tmp[3], tmp[4])
-        # glVertex3f(tmp[0], tmp[3], tmp[5])
-        # glVertex3f(tmp[0], tmp[2], tmp[5])
-        #
-        # glVertex3f(tmp[1], tmp[2], tmp[4])
-        # glVertex3f(tmp[1], tmp[3], tmp[4])
-        # glVertex3f(tmp[1], tmp[3], tmp[5])
-        # glVertex3f(tmp[1], tmp[2], tmp[5])
-        #
-        # glEnd()
-        # glPolygonMode(GL_FRONT_AND_BACK, GL_FILL)
 
         glTranslatef(-self.position[0], -self.position[1], -self.position[2])
 
