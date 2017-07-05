@@ -119,7 +119,7 @@ def init():
     glutDisplayFunc(display)
 
     # load my plane
-    drawObjectsArray.append(object.object([0,-1,0], 'resources/plane.obj'))
+    drawObjectsArray.append(object.object([0,-1,0], 'resources/terrain.obj'))
     world = world.world()
 
     # setup one particle position, velocity, mass, obj

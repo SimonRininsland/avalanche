@@ -40,48 +40,6 @@ class particle(object.object):
 
     # new position has to be calculated
     def increment(self, dt):
-        # in which quadrant am I?
-
-        # if iam in the world size
-        if self.worldSize >= abs(self.position[0]) and \
-        self.worldSize >= abs(self.position[1]) and \
-        self.worldSize >= abs(self.position[2]):
-            tmp = self.worldGridResolution
-
-            # because we need to look further than ones if there are more than 4 Quadrants
-            while tmp >= 4:
-
-                # worldSize * 2 because from -2 to +2
-                # Quadrant 1
-                print self.position
-                print self.worldGridResolution / (self.worldSize)
-                if self.position[0] <= self.worldGridResolution /self.worldSize and \
-                self.position[1] <= self.worldGridResolution / self.worldSize and \
-                self.position[2] <= self.worldGridResolution / self.worldSize:
-                    print "quadrant 1"
-
-                # Quadrant 2
-                if self.position[0] > self.worldGridResolution / self.worldSize and \
-                self.position[1] <= self.worldGridResolution / self.worldSize and \
-                self.position[2] <= self.worldGridResolution / self.worldSize:
-                    print "quadrant 2"
-
-                # Quadrant 3
-                if self.position[0] > self.worldGridResolution / self.worldSize and \
-                self.position[1] > self.worldGridResolution / self.worldSize and \
-                self.position[2] <= self.worldGridResolution / self.worldSize:
-                    print "quadrant 3"
-
-                # Quadrant 4
-                if self.position[0] > self.worldGridResolution / self.worldSize and \
-                self.position[1] > self.worldGridResolution / self.worldSize and \
-                self.position[2] > self.worldGridResolution / self.worldSize:
-                    print "quadrant 4"
-
-                tmp = tmp - 4
-
-
-
         # we want time passed in seconds
         passed = float(dt) / 1000
         self.applyForce(passed)
