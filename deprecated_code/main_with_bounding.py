@@ -1,24 +1,24 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-from random import uniform
+import random
 
 from OpenGL.GL import *
 from OpenGL.GLU import *
 from OpenGL.GLUT import *
 
-import particle, object, world
+import particle, object
 
 width, height = (1280, 720)
-flakeCount = 10
 
 # for the light
 lightfv = ctypes.c_float * 4
 
+# gloabl var for later cam rotation on click
+startPhysics = 0
+
 # ASCII OCTAL for ESCAPE
 ESCAPE = '\033'
 
-# my object array
-drawObjectsArray = []
 
 def display():
     # gets called if glut thinks the window has to be redrawed (by click, resize...)
@@ -52,29 +52,28 @@ def display():
     # set MatrixMode for render
     glMatrixMode(GL_MODELVIEW)
 
+
 def drawLoop(deltaT):
-    global world, drawObjectsArray
+    global startPhysics, plane, flake
     # display all the stuff
     # which colors will be cleared (all here- without alpha) - every frame
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
     glLoadIdentity()
 
-    # draw all my objects
-    for index in xrange(len(drawObjectsArray)):
+    # draw my plane
+    plane.draw()
 
-        # check for collision
-        for index2 in range(index+1, len(drawObjectsArray)):
-                    drawObjectsArray[index].collisionDetection(drawObjectsArray[index2])
+    # draw y flake
+    flake.draw(deltaT)
 
-        # draw my object
-        drawObjectsArray[index].draw(deltaT)
-
+    print checkBox(plane.getBound(), flake.getBound())
 
     # swap the Buffers on Projection Matrix
     glutSwapBuffers()
 
     # LoopCallback Recursive
-    glutTimerFunc(1000/60, drawLoop, 1000/60)
+    glutTimerFunc(1000 / 60, drawLoop, 1000 / 60)
+
 
 def keyFunc(key, x, y):
     if key == ESCAPE:
@@ -82,15 +81,18 @@ def keyFunc(key, x, y):
 
 
 def mouseFunc(key, mode, x, y):
+    global startPhysics
     if mode == 0 and key == 0:
         print("click")
+    pass
+
 
 def init():
-    global world, drawObjectsArray
+    global plane, flake
     # Init OpenGL Utility Toolkit
     glutInit()
     # Init the Display Mode
-    glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGBA | GLUT_DEPTH )
+    glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGBA | GLUT_DEPTH)
     # and window size
     glutInitWindowSize(width, height)
     # and the Window Title (the b in front, is to give the name in bitwise - opengl needs that)
@@ -119,13 +121,10 @@ def init():
     glutDisplayFunc(display)
 
     # load my plane
-    drawObjectsArray.append(object.object([0,-1,0], 'resources/terrain.obj'))
-    world = world.world()
+    plane = object.object([0, -1, 0], 'resources/plane.obj')
 
-    # setup one particle position, velocity, mass, obj
-    for i in xrange(flakeCount):
-        drawObjectsArray.append(particle.particle([uniform(-1.0, 1.0), uniform(1.0, 3.0), uniform(-1.0, 1.0)], [0.0, 0.0, 0.0], uniform(.2, 1.0), 'resources/flake.obj', world))
-
+    # setup one particle
+    flake = particle.particle([0, 1, 0], [0.0, 0.0, 0.0], 1, 'resources/flake.obj')
 
     # callback for keystroke
     glutKeyboardFunc(keyFunc)
@@ -134,11 +133,16 @@ def init():
     glutMouseFunc(mouseFunc)
 
     # Timer function for the 60 fps draw callback
-    glutTimerFunc(1000/60, drawLoop, 1000/60)
+    glutTimerFunc(1000 / 60, drawLoop, 1000 / 60)
 
     # glutMainLoop enters the GLUT event processing loop. This routine should be called at most once in a GLUT program.
     # Once called, this routine will never return. It will call as necessary any callbacks that have been registered.
     glutMainLoop()
+
+
+def checkBox(boxA, boxB):
+    return (boxA[0] <= boxB[1] and boxA[1] >= boxB[0]) and (boxA[2] <= boxB[3] and boxA[3] >= boxB[2]) and (boxA[4] <= boxB[5] and boxA[5] >= boxB[4]);
+
 
 if __name__ == '__main__':
     init()

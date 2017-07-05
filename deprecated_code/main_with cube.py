@@ -1,80 +1,78 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-from random import uniform
+
+import random
 
 from OpenGL.GL import *
 from OpenGL.GLU import *
 from OpenGL.GLUT import *
 
-import particle, object, world
+# used: https://github.com/greenmoss/PyWavefront
+import pywavefront
 
 width, height = (1280, 720)
-flakeCount = 10
 
-# for the light
+# gloabl var for later cam rotation on click
+camRotation = 0
+
+# lightfv for our light
 lightfv = ctypes.c_float * 4
+
+#my dummy cube
+cube = ''
 
 # ASCII OCTAL for ESCAPE
 ESCAPE = '\033'
-
-# my object array
-drawObjectsArray = []
 
 def display():
     # gets called if glut thinks the window has to be redrawed (by click, resize...)
     # init displaying
     glLoadIdentity()
 
-    # MatrixMode for setup
-    glMatrixMode(GL_PROJECTION)
-
-    # set ShadeModel
-    glShadeModel(GL_SMOOTH)
-
-    # enable if front and backface is rendered
-    glEnable(GL_CULL_FACE)
-
-    # enable depth Test
+    # enable depth  Test
     glEnable(GL_DEPTH_TEST)
 
     # setup light - 2 lights for testing
     glLightfv(GL_LIGHT0, GL_POSITION, lightfv(-40, 200, 100, 0.0))
     glLightfv(GL_LIGHT0, GL_AMBIENT, lightfv(0.2, 0.2, 0.2, 1.0))
-    glLightfv(GL_LIGHT0, GL_DIFFUSE, lightfv(0.5, 0.5, 0.5, 1.0))
+    glLightfv(GL_LIGHT0, GL_DIFFUSE, lightfv(0.7, 0.7, 0.7, 1.0))
+
     glEnable(GL_LIGHT0)
 
     # enable Lighting and Shadows
     glEnable(GL_LIGHTING)
 
-    # enabling colored material
-    glEnable(GL_COLOR_MATERIAL)
+    # GLOBAL light settings
+    glLightModelfv(GL_LIGHT_MODEL_AMBIENT, (0.1, 0.1, 0.1, 1))
+
+    # set ShadeModel
+    glShadeModel(GL_SMOOTH)
 
     # set MatrixMode for render
     glMatrixMode(GL_MODELVIEW)
 
 def drawLoop(deltaT):
-    global world, drawObjectsArray
+    global pos, camRotation, cube
     # display all the stuff
     # which colors will be cleared (all here- without alpha) - every frame
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
     glLoadIdentity()
 
-    # draw all my objects
-    for index in xrange(len(drawObjectsArray)):
+    #rotate around camRotation
+    glRotatef(camRotation, 1, 1, 0)
 
-        # check for collision
-        for index2 in range(index+1, len(drawObjectsArray)):
-                    drawObjectsArray[index].collisionDetection(drawObjectsArray[index2])
-
-        # draw my object
-        drawObjectsArray[index].draw(deltaT)
-
+    # print my cube
+    cube.draw()
 
     # swap the Buffers on Projection Matrix
     glutSwapBuffers()
 
+    # increment camRotation
+    camRotation += 1
+
     # LoopCallback Recursive
-    glutTimerFunc(1000/60, drawLoop, 1000/60)
+    glutTimerFunc(1000/60, drawLoop, 0)
+
 
 def keyFunc(key, x, y):
     if key == ESCAPE:
@@ -82,11 +80,14 @@ def keyFunc(key, x, y):
 
 
 def mouseFunc(key, mode, x, y):
+    global camRotation
     if mode == 0 and key == 0:
         print("click")
+        camRotation = 0
+    pass
 
 def init():
-    global world, drawObjectsArray
+    global cube
     # Init OpenGL Utility Toolkit
     glutInit()
     # Init the Display Mode
@@ -102,13 +103,13 @@ def init():
     # MatrixMode for setup
     glMatrixMode(GL_PROJECTION)
 
-    # set up a perspective projection matrix
+    # set up a perspective projection matrix @todo it does not do anything right now
     # void gluPerspective(	GLdouble fovy,	GLdouble aspect, GLdouble zNear, GLdouble zFar);
-    gluPerspective(40.0, float(width) / height, 1, 300.0)
+    gluPerspective(40.0, float(width) / height, 1, 100.0)
 
-    # define a viewing transformation - Camera on Z axis 10 away
+    # define a viewing transformation - Camera on Z axis 10 away @todo it does not do anything
     # void gluLookAt(GLdouble eyeX, GLdouble eyeY, GLdouble eyeZ, GLdouble centerX, GLdouble centerY, GLdouble centerZ, GLdouble upX, GLdouble upY, GLdouble upZ);
-    gluLookAt(0, 1, 5,
+    gluLookAt(0, 0, 10,
               0, 0, 0,
               0, 1, 0)
 
@@ -118,14 +119,8 @@ def init():
     # to have a callback function we need to add a display function
     glutDisplayFunc(display)
 
-    # load my plane
-    drawObjectsArray.append(object.object([0,-1,0], 'resources/terrain.obj'))
-    world = world.world()
-
-    # setup one particle position, velocity, mass, obj
-    for i in xrange(flakeCount):
-        drawObjectsArray.append(particle.particle([uniform(-1.0, 1.0), uniform(1.0, 3.0), uniform(-1.0, 1.0)], [0.0, 0.0, 0.0], uniform(.2, 1.0), 'resources/flake.obj', world))
-
+    #load my cube
+    cube = pywavefront.Wavefront('resources/cube.obj')
 
     # callback for keystroke
     glutKeyboardFunc(keyFunc)
@@ -134,7 +129,7 @@ def init():
     glutMouseFunc(mouseFunc)
 
     # Timer function for the 60 fps draw callback
-    glutTimerFunc(1000/60, drawLoop, 1000/60)
+    glutTimerFunc(1000/60, drawLoop, 0)
 
     # glutMainLoop enters the GLUT event processing loop. This routine should be called at most once in a GLUT program.
     # Once called, this routine will never return. It will call as necessary any callbacks that have been registered.

@@ -1,14 +1,17 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-from random import uniform
+import random
 
 from OpenGL.GL import *
 from OpenGL.GLU import *
 from OpenGL.GLUT import *
 
-import particle, object, world
+from random import uniform
+import particle2, object, world2
 
 width, height = (1280, 720)
+
+# number of flakes
 flakeCount = 10
 
 # for the light
@@ -60,15 +63,18 @@ def drawLoop(deltaT):
     glLoadIdentity()
 
     # draw all my objects
-    for index in xrange(len(drawObjectsArray)):
-
-        # check for collision
-        for index2 in range(index+1, len(drawObjectsArray)):
-                    drawObjectsArray[index].collisionDetection(drawObjectsArray[index2])
+    for index, drawObject in enumerate(drawObjectsArray):
+        # @todo for optimization we should trigger one plane.draw() in display and write only once in collisionArray
+        # @todo we could put the collisionBox stuff in the Objects itself
 
         # draw my object
-        drawObjectsArray[index].draw(deltaT)
+        drawObject.draw(deltaT)
 
+        # add collision Grid to my world
+        world.collisionGrid[index] = drawObject.getCollisionBox()
+
+    # check for collision @todo not the best place here
+    world.checkCollision(drawObjectsArray)
 
     # swap the Buffers on Projection Matrix
     glutSwapBuffers()
@@ -119,13 +125,16 @@ def init():
     glutDisplayFunc(display)
 
     # load my plane
-    drawObjectsArray.append(object.object([0,-1,0], 'resources/terrain.obj'))
-    world = world.world()
+    drawObjectsArray.append(object.object([0,-1,0], 'resources/plane.obj'))
 
     # setup one particle position, velocity, mass, obj
     for i in xrange(flakeCount):
-        drawObjectsArray.append(particle.particle([uniform(-1.0, 1.0), uniform(1.0, 3.0), uniform(-1.0, 1.0)], [0.0, 0.0, 0.0], uniform(.2, 1.0), 'resources/flake.obj', world))
 
+        drawObjectsArray.append(particle2.particle([uniform(-1.0, 1.0), uniform(1.0, 3.0), uniform(-1.0, 1.0)], [0.0, 0.0, 0.0], 0.5, 'resources/flake.obj', 0))
+
+
+    # create our world
+    world = world2.World([0] * len(drawObjectsArray))
 
     # callback for keystroke
     glutKeyboardFunc(keyFunc)
