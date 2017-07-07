@@ -9,7 +9,7 @@ from OpenGL.GLUT import *
 import particle, object, world
 
 width, height = (1280, 720)
-flakeCount = 3
+flakeCount = 10
 
 # for the light
 lightfv = ctypes.c_float * 4
@@ -116,7 +116,7 @@ def init():
     '''
 
     # view near
-    gluLookAt(0, 30, 50,
+    gluLookAt(0, 1, 5,
               0, 0, 0,
               0, 1, 0)
 
@@ -127,7 +127,7 @@ def init():
     glutDisplayFunc(display)
 
     # load my plane
-    drawObjectsArray.append(object.object([0,-1,0], 'resources/terrain.obj'))
+    drawObjectsArray.append(object.object([0,-1,0], 'resources/plane.obj'))
     world = world.world()
 
     # setup one particle position, velocity, mass, obj
@@ -140,7 +140,7 @@ def init():
 
     # near spawn
     for i in xrange(flakeCount):
-        drawObjectsArray.append(particle.particle([uniform(-1.0, 1.0), uniform(25.0, 50.0), uniform(-1.0, 1.0)],
+        drawObjectsArray.append(particle.particle([uniform(-1.0, 1.0), uniform(2.0, 3.0), uniform(-1.0, 1.0)],
                               [0.0, 0.0, 0.0], uniform(.2, 1.0), 'resources/flake.obj', i, world, drawObjectsArray))
 
 

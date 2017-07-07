@@ -1,5 +1,5 @@
 # Class for a single Particle
-# a Particle always has a position, velocity and a mass
+# a Particle always has a position, speed and a mass
 # a Particle checks in every step which grid is his position
 import math
 
@@ -11,15 +11,18 @@ import numpy as np
 gravitation = [0, -9.81, 0]
 
 class particle(object.object):
-    def __init__(self, position, velocity, mass, obj, index, world, drawObjectsArray):
+    def __init__(self, position, speed, mass, obj, index, world, drawObjectsArray):
         # an own index
         self.index = index
 
-        # every Particle has an own positionget_vert
+        # every Particle has an new own positionget_vert
         self.position = position
 
-        # and an own velocity
-        self.velocity = velocity
+        # and an own speed
+        self.speed = speed
+
+        # and an own elasticity 1:perfect bounce 0: zero bounce
+        self.elasticity = 0.8
 
         # and an own mass
         self.mass = mass
@@ -34,24 +37,17 @@ class particle(object.object):
 
         self.drawObjectsArray = drawObjectsArray
 
-    # apply the Force
-    def applyForce(self, dt):
+    def applyGravity(self, dt):
+        # apply the Force
         global gravitation
 
-        # old velocity added by the force given in dependence to Time gone and the mass
-        self.velocity[0] = self.velocity[0] + gravitation[0] * (dt / self.mass)
-        self.velocity[1] = self.velocity[1] + gravitation[1] * (dt / self.mass)
-        self.velocity[2] = self.velocity[2] + gravitation[2] * (dt / self.mass)
+        # old speed added by the force given in dependence to Time gone and the mass
+        self.speed[0] += gravitation[0] * (dt / self.mass)
+        self.speed[1] += gravitation[1] * (dt / self.mass)
+        self.speed[2] += gravitation[2] * (dt / self.mass)
 
-    # new position has to be calculated
-    def increment(self, dt, world):
-        # save voxel before
-        preVoxel = self.voxel
-
-        # we want time passed in seconds
-        passed = float(dt) / 1000
-        self.applyForce(passed)
-
+    def checkGrid(self, preVoxel, world):
+        # check new Position Voxel
         # new Voxel
         self.voxel = [[int(round(self.position[0])) + world.worldSize],
                       [int(round(self.position[1])) + world.worldSize],
@@ -63,8 +59,8 @@ class particle(object.object):
         else:
             if world.grid[self.voxel] != self.index:
                 # check a collision
-                print("Collision detected ")
-                print(world.grid[self.voxel])
+                # print("Collision detected ")
+                # print(world.grid[self.voxel])
                 for collObjIndex in world.grid[self.voxel]:
                     self.collisionDetection(self.drawObjectsArray[collObjIndex])
 
@@ -75,25 +71,45 @@ class particle(object.object):
         if preVoxel != self.voxel:
 
             # to avoid having an empty non existing array in grid
-            if len(world.grid[preVoxel]) <=1:
+            if len(world.grid[preVoxel]) <= 1:
                 world.grid[preVoxel] = -1
             else:
                 np.delete(world.grid[preVoxel], self.index)
 
-        # new position is old position + velocity in dependence to the time gone
-        self.position[0] = self.position[0] + self.velocity[0] * passed
-        self.position[1] = self.position[1] + self.velocity[1] * passed
-        self.position[2] = self.position[2] + self.velocity[2] * passed
+    # new position has to be calculated
+    def increment(self, dt, world):
+
+        # save voxel before
+        preVoxel = self.voxel
+
+        # we want time passed in seconds
+        passed = float(dt) / 1000
+        # @todo When Tiras has his Terrain Highmap, remove this:
+        if self.position[1] < 0.0:
+            self.collisionResponse()
+        else:
+            self.applyGravity(passed)
+
+
+
+        # calc new Posititon
+        # new position is old position + speed in dependence to the time gone
+        self.position[0] += self.speed[0] * passed
+        self.position[1] += self.speed[1] * passed
+        self.position[2] += self.speed[2] * passed
+
+        # check Grid
+        self.checkGrid(preVoxel, world)
 
     # some function to combine two particles to one @todo
     def combine(self, other):
         '''
         newPos = (self.position + other.position) * 0.5
         newMass = self.mass + other.mass
-        newVel = (self.velocity * self.mass + other.velocity * other.mass) * (1 / newMass)
+        newVel = (self.speed * self.mass + other.speed * other.mass) * (1 / newMass)
         self.position = newPos
         self.mass = newMass
-        self.velocity = newVel
+        self.speed = newVel
         '''
 
     def getBound(self):
@@ -109,9 +125,10 @@ class particle(object.object):
 
     def collisionResponse(self):
         # very not correct collision handling at the moment @todo everything
-        self.velocity[0] = -self.velocity[0]
-        self.velocity[1] = -self.velocity[1]
-        self.velocity[2] = -self.velocity[2]
+
+        self.speed[0] = abs(self.speed[0]*self.elasticity)
+        self.speed[1] = abs(self.speed[1]*self.elasticity)
+        self.speed[2] = abs(self.speed[2]*self.elasticity)
 
 
     def collisionDetection(self, obj):
