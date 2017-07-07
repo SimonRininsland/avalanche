@@ -9,7 +9,7 @@ from OpenGL.GLUT import *
 import particle, object, world
 
 width, height = (1280, 720)
-flakeCount = 1
+flakeCount = 3
 
 # for the light
 lightfv = ctypes.c_float * 4
@@ -62,9 +62,9 @@ def drawLoop(deltaT):
     # draw all my objects
     for index in xrange(len(drawObjectsArray)):
 
-        # check for collision
+        ''''# check for collision
         for index2 in range(index+1, len(drawObjectsArray)):
-                    drawObjectsArray[index].collisionDetection(drawObjectsArray[index2])
+                    drawObjectsArray[index].collisionDetection(drawObjectsArray[index2])'''
 
         # draw my object
         drawObjectsArray[index].draw(deltaT, world)
@@ -108,7 +108,15 @@ def init():
 
     # define a viewing transformation - Camera on Z axis 10 away
     # void gluLookAt(GLdouble eyeX, GLdouble eyeY, GLdouble eyeZ, GLdouble centerX, GLdouble centerY, GLdouble centerZ, GLdouble upX, GLdouble upY, GLdouble upZ);
-    gluLookAt(100, 100, 100,
+
+    # view far away
+    '''gluLookAt(100, 100, 100,
+              0, 0, 0,
+              0, 1, 0)
+    '''
+
+    # view near
+    gluLookAt(0, 30, 50,
               0, 0, 0,
               0, 1, 0)
 
@@ -123,8 +131,17 @@ def init():
     world = world.world()
 
     # setup one particle position, velocity, mass, obj
+
+    # whole map spawn
+    '''for i in xrange(flakeCount):
+        drawObjectsArray.append(particle.particle([uniform(-63.0, 63.0), uniform(25.0, 50.0), uniform(-63.0, 63.0)], 
+        [0.0, 0.0, 0.0], uniform(.2, 1.0), 'resources/flake.obj', i, world, drawObjectsArray))
+    '''
+
+    # near spawn
     for i in xrange(flakeCount):
-        drawObjectsArray.append(particle.particle([uniform(-63.0, 63.0), uniform(25.0, 50.0), uniform(-63.0, 63.0)], [0.0, 0.0, 0.0], uniform(.2, 1.0), 'resources/flake.obj', i))
+        drawObjectsArray.append(particle.particle([uniform(-1.0, 1.0), uniform(25.0, 50.0), uniform(-1.0, 1.0)],
+                              [0.0, 0.0, 0.0], uniform(.2, 1.0), 'resources/flake.obj', i, world, drawObjectsArray))
 
 
     # callback for keystroke

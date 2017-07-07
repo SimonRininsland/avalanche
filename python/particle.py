@@ -5,12 +5,13 @@ import math
 
 import pywavefront
 import object
+import numpy as np
 
 # The Gravitation
 gravitation = [0, -9.81, 0]
 
 class particle(object.object):
-    def __init__(self, position, velocity, mass, obj, index):
+    def __init__(self, position, velocity, mass, obj, index, world, drawObjectsArray):
         # an own index
         self.index = index
 
@@ -26,6 +27,13 @@ class particle(object.object):
         # my obj
         self.obj = pywavefront.Wavefront(obj)
 
+        # my voxel
+        self.voxel = [[int(round(self.position[0])) + world.worldSize],
+                   [int(round(self.position[1])) + world.worldSize],
+                   [int(round(self.position[2])) + world.worldSize]]
+
+        self.drawObjectsArray = drawObjectsArray
+
     # apply the Force
     def applyForce(self, dt):
         global gravitation
@@ -37,18 +45,41 @@ class particle(object.object):
 
     # new position has to be calculated
     def increment(self, dt, world):
+        # save voxel before
+        preVoxel = self.voxel
+
         # we want time passed in seconds
         passed = float(dt) / 1000
         self.applyForce(passed)
 
-        world.grid[[int(round(self.position[0])) + world.worldSize],
-                   [int(round(self.position[1])) + world.worldSize],
-                   [int(round(self.position[2])) + world.worldSize]] = self.index
-        #print
-        #print int(round(self.position[1]))
-        #print int(round(self.position[2]))
-        #print (world.grid)
-        #exit()
+        # new Voxel
+        self.voxel = [[int(round(self.position[0])) + world.worldSize],
+                      [int(round(self.position[1])) + world.worldSize],
+                      [int(round(self.position[2])) + world.worldSize]]
+
+        # if voxel is empty
+        if world.grid[self.voxel] == -1:
+            world.grid[self.voxel] = self.index
+        else:
+            if world.grid[self.voxel] != self.index:
+                # check a collision
+                print("Collision detected ")
+                print(world.grid[self.voxel])
+                for collObjIndex in world.grid[self.voxel]:
+                    self.collisionDetection(self.drawObjectsArray[collObjIndex])
+
+                # and append myself
+                np.append(world.grid[self.voxel], self.index)
+
+        # i'm in a new voxel
+        if preVoxel != self.voxel:
+
+            # to avoid having an empty non existing array in grid
+            if len(world.grid[preVoxel]) <=1:
+                world.grid[preVoxel] = -1
+            else:
+                np.delete(world.grid[preVoxel], self.index)
+
         # new position is old position + velocity in dependence to the time gone
         self.position[0] = self.position[0] + self.velocity[0] * passed
         self.position[1] = self.position[1] + self.velocity[1] * passed

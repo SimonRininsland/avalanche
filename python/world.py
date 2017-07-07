@@ -11,7 +11,9 @@ class world(object):
         # 10*10*10 in worldSize above
         self.gridResolution = 128
 
-        self.grid = np.empty((self.gridResolution, self.gridResolution, self.gridResolution), dtype=int)
+        self.grid = np.zeros((self.gridResolution, self.gridResolution, self.gridResolution), dtype=int)
+        # -1 means is empty
+        self.grid.fill(-1)
 
     def getGridResolution(self):
         return self.gridResolution
