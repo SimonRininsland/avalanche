@@ -1,18 +1,17 @@
 # Our world model
-# our world space is from 2 to 2 and is squared in 4 parts 4*4*4
-# always take gridResolutions x * 4
+# out Terrain has a Radius of 64. It's 128 big
 
 import numpy as np
 
 class world(object):
     def __init__(self):
-        # all Axis +2 to -2
-        self.worldSize = 2
+        # our Plane has a radius of
+        self.worldSize = 64
 
         # 10*10*10 in worldSize above
-        self.gridResolution = 4
+        self.gridResolution = 128
 
-        self.grid = np.empty([self.gridResolution])
+        self.grid = np.empty((self.gridResolution, self.gridResolution, self.gridResolution), dtype=int)
 
     def getGridResolution(self):
         return self.gridResolution

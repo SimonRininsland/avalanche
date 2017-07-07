@@ -17,11 +17,11 @@ class object():
         # The obj
         self.obj = pywavefront.Wavefront(obj)
 
-    def increment(self, dt):
+    def increment(self, dt, world):
         pass
 
-    def draw(self, deltaT):
-        self.increment(deltaT)
+    def draw(self, deltaT, world):
+        self.increment(deltaT, world)
         glTranslatef(self.position[0], self.position[1], self.position[2])
         #glScalef(self.mass,self.mass,self.mass)
         self.obj.draw()

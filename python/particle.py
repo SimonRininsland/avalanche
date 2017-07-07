@@ -10,7 +10,10 @@ import object
 gravitation = [0, -9.81, 0]
 
 class particle(object.object):
-    def __init__(self, position, velocity, mass, obj, world):
+    def __init__(self, position, velocity, mass, obj, index):
+        # an own index
+        self.index = index
+
         # every Particle has an own positionget_vert
         self.position = position
 
@@ -23,12 +26,6 @@ class particle(object.object):
         # my obj
         self.obj = pywavefront.Wavefront(obj)
 
-        # the world gridResolution
-        self.worldGridResolution = world.gridResolution
-
-        # the world worldSize
-        self.worldSize = world.worldSize
-
     # apply the Force
     def applyForce(self, dt):
         global gravitation
@@ -39,11 +36,19 @@ class particle(object.object):
         self.velocity[2] = self.velocity[2] + gravitation[2] * (dt / self.mass)
 
     # new position has to be calculated
-    def increment(self, dt):
+    def increment(self, dt, world):
         # we want time passed in seconds
         passed = float(dt) / 1000
         self.applyForce(passed)
 
+        world.grid[[int(round(self.position[0])) + world.worldSize],
+                   [int(round(self.position[1])) + world.worldSize],
+                   [int(round(self.position[2])) + world.worldSize]] = self.index
+        #print
+        #print int(round(self.position[1]))
+        #print int(round(self.position[2]))
+        #print (world.grid)
+        #exit()
         # new position is old position + velocity in dependence to the time gone
         self.position[0] = self.position[0] + self.velocity[0] * passed
         self.position[1] = self.position[1] + self.velocity[1] * passed
