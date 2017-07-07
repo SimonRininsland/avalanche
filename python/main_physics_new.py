@@ -9,7 +9,7 @@ from OpenGL.GLUT import *
 import particle, object, world
 
 width, height = (1280, 720)
-flakeCount = 10
+flakeCount = 1
 
 # for the light
 lightfv = ctypes.c_float * 4
@@ -67,7 +67,7 @@ def drawLoop(deltaT):
                     drawObjectsArray[index].collisionDetection(drawObjectsArray[index2])
 
         # draw my object
-        drawObjectsArray[index].draw(deltaT)
+        drawObjectsArray[index].draw(deltaT, world)
 
 
     # swap the Buffers on Projection Matrix
@@ -108,7 +108,7 @@ def init():
 
     # define a viewing transformation - Camera on Z axis 10 away
     # void gluLookAt(GLdouble eyeX, GLdouble eyeY, GLdouble eyeZ, GLdouble centerX, GLdouble centerY, GLdouble centerZ, GLdouble upX, GLdouble upY, GLdouble upZ);
-    gluLookAt(0, 1, 5,
+    gluLookAt(100, 100, 100,
               0, 0, 0,
               0, 1, 0)
 
@@ -124,7 +124,7 @@ def init():
 
     # setup one particle position, velocity, mass, obj
     for i in xrange(flakeCount):
-        drawObjectsArray.append(particle.particle([uniform(-1.0, 1.0), uniform(1.0, 3.0), uniform(-1.0, 1.0)], [0.0, 0.0, 0.0], uniform(.2, 1.0), 'resources/flake.obj', world))
+        drawObjectsArray.append(particle.particle([uniform(-63.0, 63.0), uniform(25.0, 50.0), uniform(-63.0, 63.0)], [0.0, 0.0, 0.0], uniform(.2, 1.0), 'resources/flake.obj', i))
 
 
     # callback for keystroke
