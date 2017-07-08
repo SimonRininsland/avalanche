@@ -101,7 +101,7 @@ class particle(object.object):
         # check Grid
         self.checkGrid(preVoxel, world)
 
-    # some function to combine two particles to one @todo
+    # @todo: some function to combine two particles to one
     def combine(self, other):
         '''
         newPos = (self.position + other.position) * 0.5
@@ -124,7 +124,7 @@ class particle(object.object):
         return (x, y, z, r)
 
     def collisionResponse(self):
-        # very not correct collision handling at the moment @todo everything
+        # @todo add angle and force
 
         self.speed[0] = abs(self.speed[0]*self.elasticity)
         self.speed[1] = abs(self.speed[1]*self.elasticity)
