@@ -11,8 +11,8 @@ class world(object):
         # 10*10*10 in worldSize above
         self.gridResolution = 128
 
-        # The Heightmap
-        self.terrainHeightMap = np.zeros((self.gridResolution, self.gridResolution), dtype=float)
+        # The Heightmap @todo add angle
+        self.terrainHeightMap = np.zeros((self.gridResolution, self.gridResolution, 1), dtype=float)
 
         self.grid = np.zeros((self.gridResolution, self.gridResolution, self.gridResolution), dtype=int)
         # -1 means is empty

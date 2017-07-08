@@ -9,7 +9,7 @@ from OpenGL.GLUT import *
 import particle, object, world
 
 width, height = (1280, 720)
-flakeCount = 10
+flakeCount = 50
 
 # for the light
 lightfv = ctypes.c_float * 4
@@ -116,7 +116,7 @@ def init():
     '''
 
     # view near
-    gluLookAt(20, 20, 5,
+    gluLookAt(20, 40, 5,
               0, 20, 0,
               0, 1, 0)
 
