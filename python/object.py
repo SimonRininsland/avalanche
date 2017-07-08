@@ -42,9 +42,9 @@ class object():
         # X - Axis min / max
         # Y - Axis min / max
         # Z - Axis min / max
-        return (bound[0] + self.position[0], bound[1] + self.position[0],
-                bound[2] + self.position[1], bound[3] + self.position[1],
-                bound[4] + self.position[2], bound[5] + self.position[2])
+        return (bound[0] + self.positionNew[0], bound[1] + self.position[0],
+                bound[2] + self.positionNew[1], bound[3] + self.position[1],
+                bound[4] + self.positionNew[2], bound[5] + self.position[2])
 
     def collisionDetection(self, obj):
         if isinstance(obj, particle.particle):
