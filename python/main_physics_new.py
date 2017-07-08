@@ -116,8 +116,8 @@ def init():
     '''
 
     # view near
-    gluLookAt(0, 1, 5,
-              0, 0, 0,
+    gluLookAt(20, 20, 5,
+              0, 20, 0,
               0, 1, 0)
 
     # set MatrixMode for render
@@ -126,22 +126,24 @@ def init():
     # to have a callback function we need to add a display function
     glutDisplayFunc(display)
 
-    # load my plane
-    drawObjectsArray.append(object.object([0,-1,0], 'resources/plane.obj'))
+    # our world model
     world = world.world()
+
+    # load my plane
+    drawObjectsArray.append(object.object([0,-1,0], 'resources/terrain.obj', world))
 
     # setup one particle position, velocity, mass, obj
 
     # whole map spawn
-    '''for i in xrange(flakeCount):
-        drawObjectsArray.append(particle.particle([uniform(-63.0, 63.0), uniform(25.0, 50.0), uniform(-63.0, 63.0)], 
+    for i in xrange(flakeCount):
+        drawObjectsArray.append(particle.particle([uniform(-20.0, 20.0), uniform(40.0, 60.0), uniform(-20.0, 20.0)],
         [0.0, 0.0, 0.0], uniform(.2, 1.0), 'resources/flake.obj', i, world, drawObjectsArray))
-    '''
+
 
     # near spawn
-    for i in xrange(flakeCount):
+    '''for i in xrange(flakeCount):
         drawObjectsArray.append(particle.particle([uniform(-1.0, 1.0), uniform(2.0, 3.0), uniform(-1.0, 1.0)],
-                              [0.0, 0.0, 0.0], uniform(.2, 1.0), 'resources/flake.obj', i, world, drawObjectsArray))
+                              [0.0, 0.0, 0.0], uniform(.2, 1.0), 'resources/flake.obj', i, world, drawObjectsArray))'''
 
 
     # callback for keystroke

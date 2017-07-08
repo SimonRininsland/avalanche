@@ -30,10 +30,13 @@ class particle(object.object):
         # my obj
         self.obj = pywavefront.Wavefront(obj)
 
+        # my VoxelIndex
+        self.voxelIndex = (int(round(self.position[0])) + world.worldSize,
+                           int(round(self.position[1])) + world.worldSize,
+                           int(round(self.position[2])) + world.worldSize)
+
         # my voxel
-        self.voxel = [[int(round(self.position[0])) + world.worldSize],
-                   [int(round(self.position[1])) + world.worldSize],
-                   [int(round(self.position[2])) + world.worldSize]]
+        self.voxel = [self.voxelIndex]
 
         self.drawObjectsArray = drawObjectsArray
 
@@ -59,8 +62,6 @@ class particle(object.object):
         else:
             if world.grid[self.voxel] != self.index:
                 # check a collision
-                # print("Collision detected ")
-                # print(world.grid[self.voxel])
                 for collObjIndex in world.grid[self.voxel]:
                     self.collisionDetection(self.drawObjectsArray[collObjIndex])
 
@@ -84,13 +85,12 @@ class particle(object.object):
 
         # we want time passed in seconds
         passed = float(dt) / 1000
-        # @todo When Tiras has his Terrain Highmap, remove this:
-        if self.position[1] < 0.0:
+
+        # @todo: Nex Step: check with Terrain
+        if self.position[1] <= 0.0:
             self.collisionResponse()
         else:
             self.applyGravity(passed)
-
-
 
         # calc new Posititon
         # new position is old position + speed in dependence to the time gone
