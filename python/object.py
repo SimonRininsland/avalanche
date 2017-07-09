@@ -31,9 +31,6 @@ class object():
 
 
     def getHeightMap(self, world):
-        # @todo: Better collide with half heigth f vertice (height of vertice = max -min / 2
-        # @todo: Add Angle
-
         # map heigth of vertice in array
         for vertice in self.obj.vertx:
             x = int(round(vertice[0])) + world.worldSize - 1
@@ -45,7 +42,9 @@ class object():
         # to not have false zeros in height array:
         for x, heights in enumerate(world.terrainHeightMap):
             for z, height in enumerate(heights):
-                if height[0] <= 0:
+                # go through Heighmap
+                if height <= 0:
+                    # search for Zeros (comes in the EndPoints of the Terrain ) and correct them
                     if z == 0:
                         world.terrainHeightMap[x][z] = ((heights[z + 1] + heights[z + 2]) / 2)
                     elif z >= (len(world.terrainHeightMap)-1):

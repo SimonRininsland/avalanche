@@ -64,6 +64,7 @@ class particle(object.object):
             if world.grid[self.voxel] != self.index:
                 # check a collision
                 for collObjIndex in world.grid[self.voxel]:
+                    #@todo: Next step Collide with other Particles
                     self.collisionDetection(self.drawObjectsArray[collObjIndex])
 
                 # and append myself
@@ -78,53 +79,21 @@ class particle(object.object):
             else:
                 np.delete(world.grid[preVoxel], self.index)
 
-    def calcAngleCollision(self, world, x, z):
+    def calcForceCollision(self, world, x, z):
         # returns angle and direction in the Form:
-        # angle 1 means up, angle 0 meanse straight to left or rigth
-        # angle, (right, rightDown, down, leftdown, left, leftTop, top, topRight )
+
+        # RealPositin is my position added the worldSize -1 (because of array init)
         xReal = self.position[0] + world.worldSize - 1
         zReal = self.position[2] + world.worldSize - 1
 
-        xDiff = x - xReal
-        zDiff = z - zReal
+        # calc the x and z Force
+        xForce = x - xReal
+        zForce = z - zReal
 
-        # defaulValue are to the Top and directly
-        angle = (-1, -1, -1, -1, -1, -1, 90, -1)
+        # sum it up in ForceArray
+        collisionForce = [xForce,(1-(abs(xForce) + abs(zForce))),zForce]
 
-        if abs(xDiff) > abs(zDiff) * 2:
-            # our lean is only to X axis
-            if xDiff >= 0:
-                # to the right
-                angle = (atan(abs(world.terrainHeightMap[x + 1][z] - self.position[1])), -1, -1, -1, -1, -1, -1, -1)
-            else:
-                # to the left
-                angle = (-1, -1, -1, -1, atan(abs(world.terrainHeightMap[x - 1][z] - self.position[1])), -1, -1, -1)
-        elif abs(zDiff) > abs(xDiff) * 2:
-            # our lean is only to Z axis
-            if zDiff >= 0:
-                # to the Top
-                angle = (-1, -1, -1, -1, -1, -1, atan(abs(world.terrainHeightMap[x][z + 1] - self.position[1])), -1)
-            else:
-                # to the Bottom
-                angle = (-1, -1, atan(abs(world.terrainHeightMap[x][z - 1] - self.position[1])), -1, -1, -1, -1, -1)
-        elif xDiff >= 0:
-            if zDiff >= 0:
-                # to the Top-Right
-                angle = (-1, -1, -1, -1, -1, -1, -1, atan(abs(world.terrainHeightMap[x + 1][z + 1] - self.position[1])))
-            elif zDiff < 0:
-                # to the Down-Right
-                angle = (-1, atan(abs(world.terrainHeightMap[x + 1][z - 1] - self.position[1])), -1, -1, -1, -1, -1, -1)
-        elif xDiff < 0:
-            if zDiff >= 0:
-                # to the Top-Left
-                angle = (-1, -1, -1, -1, -1, atan(abs(world.terrainHeightMap[x - 1][z + 1] - self.position[1])), -1, -1)
-            if zDiff < 0:
-                # to the Down-Left
-                angle = (-1, -1, -1, atan(abs(world.terrainHeightMap[x - 1][z - 1] - self.position[1])), -1, -1, -1, -1)
-        else:
-            print("can't bee!")
-
-        return (angle)
+        return (collisionForce)
 
     def increment(self, dt, world):
 
@@ -141,10 +110,10 @@ class particle(object.object):
         # if there is a Collision with Terrain
         if self.position[1] <= world.terrainHeightMap[x][z]:
             # calculate the Angle and direction
-            angle = self.calcAngleCollision(world, x, z)
+            collisionForce = self.calcForceCollision(world, x, z)
 
             # react on Collision
-            self.collisionResponse(angle)
+            self.collisionResponse(collisionForce)
         else:
             self.applyGravity(passed)
 
@@ -179,56 +148,14 @@ class particle(object.object):
 
         return (x, y, z, r)
 
-    def collisionResponse(self, angle):
-        # @todo add angle and force
-        #if angle == (0, 0, 0, 0, 1, 0, 0, 0):
-            # to the left
-        print angle[0]
+    def collisionResponse(self, collisionForce):
+        # fullSpeed has to be hold by
         fullSpeed = self.speed[0] + self.speed[1] + self.speed[2]
 
-        if angle[0] > -1:
-            # it goes to the right
-            self.speed[0] = abs((fullSpeed*(1-angle[0])*self.elasticity))
-            self.speed[1] = abs((fullSpeed*(angle[0])*self.elasticity))
-            self.speed[2] = 0
-        elif angle[1] > -1:
-            # it goes to the rightDown
-            self.speed[0] = abs((fullSpeed * (1 - angle[1])/2 * self.elasticity))
-            self.speed[1] = abs((fullSpeed * (angle[1]) * self.elasticity))
-            self.speed[2] = -abs((fullSpeed * (1 - angle[1])/2 * self.elasticity))
-        elif angle[2] > -1:
-            # it goes down
-            self.speed[0] = 0
-            self.speed[1] = abs((fullSpeed * (angle[2]) * self.elasticity))
-            self.speed[2] = -abs((fullSpeed * (1 - angle[2]) * self.elasticity))
-        elif angle[3] > -1:
-            # it goes to the leftdown
-            self.speed[0] = -abs((fullSpeed * (1 - angle[3])/2 * self.elasticity))
-            self.speed[1] = abs((fullSpeed * (angle[3]) * self.elasticity))
-            self.speed[2] = -abs((fullSpeed * (1 - angle[3])/2 * self.elasticity))
-        elif angle[4] > -1:
-            # it goes to the left
-            self.speed[0] = -abs((fullSpeed * (1 - angle[4]) * self.elasticity))
-            self.speed[1] = abs((fullSpeed * (angle[4]) * self.elasticity))
-            self.speed[2] = 0
-        elif angle[5] > -1:
-            # it goes to the leftTop
-            self.speed[0] = -abs((fullSpeed * (1 - angle[5])/2 * self.elasticity))
-            self.speed[1] = abs((fullSpeed * (angle[5]) * self.elasticity))
-            self.speed[2] = abs((fullSpeed * (1 - angle[5])/2 * self.elasticity))
-        elif angle[6] > -1:
-            # it goes to the top
-            self.speed[0] = 0
-            self.speed[1] = abs((fullSpeed * (angle[6]) * self.elasticity))
-            self.speed[2] = abs((fullSpeed * (1 - angle[6]) * self.elasticity))
-        elif angle[7] > -1:
-            # it goes to the topRight
-            self.speed[0] = abs((fullSpeed * (1 - angle[7])/2 * self.elasticity))
-            self.speed[1] = abs((fullSpeed * (angle[7]) * self.elasticity))
-            self.speed[2] = abs((fullSpeed * (1 - angle[7])/2 * self.elasticity))
-        else:
-            print("can't be")
-
+        # the collisionForce impacts the different Axis
+        self.speed[0] = abs(fullSpeed * collisionForce[0]*self.elasticity)
+        self.speed[1] = abs(fullSpeed * collisionForce[1]*self.elasticity)
+        self.speed[2] = abs(fullSpeed * collisionForce[2]*self.elasticity)
 
     def collisionDetection(self, obj):
         tmpP = self.getBound()
