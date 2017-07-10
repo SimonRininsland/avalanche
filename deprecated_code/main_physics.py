@@ -64,8 +64,6 @@ def drawLoop(deltaT):
 
     # draw all my objects
     for index, drawObject in enumerate(drawObjectsArray):
-        # @todo for optimization we should trigger one plane.draw() in display and write only once in collisionArray
-        # @todo we could put the collisionBox stuff in the Objects itself
 
         # draw my object
         drawObject.draw(deltaT)
@@ -73,7 +71,7 @@ def drawLoop(deltaT):
         # add collision Grid to my world
         world.collisionGrid[index] = drawObject.getCollisionBox()
 
-    # check for collision @todo not the best place here
+
     world.checkCollision(drawObjectsArray)
 
     # swap the Buffers on Projection Matrix

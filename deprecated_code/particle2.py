@@ -47,7 +47,6 @@ class particle(object.object):
         self.position[2] = self.position[2] + self.velocity[2] * passed
         self.col = 0
 
-    # some function to combine two particles to one @todo
     def combine(self, other):
         '''
         newPos = (self.position + other.position) * 0.5
@@ -59,7 +58,6 @@ class particle(object.object):
         '''
 
     def collision(self):
-        # very not correct collision handling at the moment @todo everything
         if self.col < 1:
             self.velocity[0] = -self.velocity[0]
             self.velocity[1] = -self.velocity[1]

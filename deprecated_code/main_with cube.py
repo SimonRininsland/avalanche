@@ -103,11 +103,10 @@ def init():
     # MatrixMode for setup
     glMatrixMode(GL_PROJECTION)
 
-    # set up a perspective projection matrix @todo it does not do anything right now
+
     # void gluPerspective(	GLdouble fovy,	GLdouble aspect, GLdouble zNear, GLdouble zFar);
     gluPerspective(40.0, float(width) / height, 1, 100.0)
 
-    # define a viewing transformation - Camera on Z axis 10 away @todo it does not do anything
     # void gluLookAt(GLdouble eyeX, GLdouble eyeY, GLdouble eyeZ, GLdouble centerX, GLdouble centerY, GLdouble centerZ, GLdouble upX, GLdouble upY, GLdouble upZ);
     gluLookAt(0, 0, 10,
               0, 0, 0,

@@ -5,7 +5,7 @@ from OpenGL.GL import *
 # used: https://github.com/greenmoss/PyWavefront
 import pywavefront
 import particle
-
+import numpy as np
 
 class object():
     def __init__(self, position, obj, world):
@@ -31,24 +31,26 @@ class object():
 
 
     def getHeightMap(self, world):
-        # @todo: Better collide with half heigth f vertice (height of vertice = max -min / 2
-
         # map heigth of vertice in array
-        for vertice  in self.obj.vertx:
+        for vertice in self.obj.vertx:
             x = int(round(vertice[0])) + world.worldSize - 1
-            y = int(round(vertice[2])) + world.worldSize - 1
-            world.terrainHeightMap[x][y] = vertice[1]
+            y = int(round(vertice[1]))
+            z = int(round(vertice[2])) + world.worldSize - 1
+
+            world.terrainHeightMap[x][z] = y
 
         # to not have false zeros in height array:
         for x, heights in enumerate(world.terrainHeightMap):
-            for y, height in enumerate(heights):
+            for z, height in enumerate(heights):
+                # go through Heighmap
                 if height <= 0:
-                    if y == 0:
-                        world.terrainHeightMap[x][y] = ((heights[y + 1] + heights[y + 2]) / 2)
-                    elif y >= (len(world.terrainHeightMap)-1):
-                        world.terrainHeightMap[x][y] = ((heights[y - 1] + heights[y - 2]) / 2)
+                    # search for Zeros (comes in the EndPoints of the Terrain ) and correct them
+                    if z == 0:
+                        world.terrainHeightMap[x][z] = ((heights[z + 1] + heights[z + 2]) / 2)
+                    elif z >= (len(world.terrainHeightMap)-1):
+                        world.terrainHeightMap[x][z] = ((heights[z - 1] + heights[z - 2]) / 2)
                     else:
-                        world.terrainHeightMap[x][y] = ((heights[y - 1] + heights[y + 1]) / 2)
+                        world.terrainHeightMap[x][z] = ((heights[z - 1] + heights[z + 1]) / 2)
 
 
     def getBound(self):

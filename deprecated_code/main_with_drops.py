@@ -102,7 +102,6 @@ def init():
     # enable depth Test
     glEnable(GL_DEPTH_TEST)
 
-    # enable Lighting and Shadows @todo we need to add a ligth afterwards
     # glEnable(GL_LIGHTING)
 
     # enabling colored material
