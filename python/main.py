@@ -9,7 +9,7 @@ from OpenGL.GLUT import *
 import particle, object, world
 
 width, height = (1280, 720)
-flakeCount = 100
+flakeCount = 2
 
 # for the light
 lightfv = ctypes.c_float * 4
@@ -109,14 +109,19 @@ def init():
     # define a viewing transformation - Camera on Z axis 10 away
     # void gluLookAt(GLdouble eyeX, GLdouble eyeY, GLdouble eyeZ, GLdouble centerX, GLdouble centerY, GLdouble centerZ, GLdouble upX, GLdouble upY, GLdouble upZ);
 
-    # view far away
+    # view more far away
     '''gluLookAt(100, 100, 100,
               0, 0, 0,
               0, 1, 0)
     '''
+    '''
+    # view far away
+    gluLookAt(20, 40, 5,
+              0, 20, 0,
+              0, 1, 0)'''
 
-    # view near
-    gluLookAt(20, 30, 5,
+    # view near to test
+    gluLookAt(10, 30, 0,
               0, 20, 0,
               0, 1, 0)
 
@@ -130,13 +135,13 @@ def init():
     world = world.world()
 
     # load my plane
-    drawObjectsArray.append(object.object([0,-1,0], 'resources/terrain.obj', world))
+    drawObjectsArray.append(object.object([0,0,0], 'resources/terrain.obj', world))
 
     # setup one particle position, velocity, mass, obj
 
-    # whole map spawn
+    # Spawn Flakes
     for i in xrange(flakeCount):
-        drawObjectsArray.append(particle.particle([uniform(-20.0, 20.0), uniform(40.0, 60.0), uniform(-20.0, 20.0)],
+        drawObjectsArray.append(particle.particle([uniform(-1.0, 1.0), uniform(24.0, 30.0),uniform(-1.0, 1.0)],
         [0.0, 0.0, 0.0], uniform(.2, 1.0), 'resources/flake.obj', i, world, drawObjectsArray))
 
 

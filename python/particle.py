@@ -6,7 +6,7 @@ import math
 import pywavefront
 import object
 import numpy as np
-from math import atan
+from math import atan2, sqrt, asin, pi
 
 # The Gravitation
 gravitation = [0, -9.81, 0]
@@ -22,11 +22,14 @@ class particle(object.object):
         # and an own speed
         self.speed = speed
 
-        # and an own elasticity 1:perfect bounce 0: zero bounce
-        self.elasticity = 1
+        # and an own elasticity 1:perfect bounce 0: zero bounce 0.7
+        self.elasticity = 0.7
 
         # and an own mass
         self.mass = mass
+
+        # and an air drag 0.8
+        self.airDrag = 0
 
         # my obj
         self.obj = pywavefront.Wavefront(obj)
@@ -41,14 +44,14 @@ class particle(object.object):
 
         self.drawObjectsArray = drawObjectsArray
 
-    def applyGravity(self, dt):
+    def applyGravityAndAirDrag(self, dt):
         # apply the Force
         global gravitation
 
         # old speed added by the force given in dependence to Time gone and the mass
-        self.speed[0] += gravitation[0] * (dt / self.mass)
-        self.speed[1] += gravitation[1] * (dt / self.mass)
-        self.speed[2] += gravitation[2] * (dt / self.mass)
+        self.speed[0] += gravitation[0] * (1- self.airDrag) * (dt / self.mass)
+        self.speed[1] += gravitation[1] * (1- self.airDrag) * (dt / self.mass)
+        self.speed[2] += gravitation[2] * (1- self.airDrag) * (dt / self.mass)
 
     def checkGrid(self, preVoxel, world):
         # check new Position Voxel
@@ -64,8 +67,9 @@ class particle(object.object):
             if world.grid[self.voxel] != self.index:
                 # check a collision
                 for collObjIndex in world.grid[self.voxel]:
+                    pass
                     #@todo: Next step Collide with other Particles
-                    self.collisionDetection(self.drawObjectsArray[collObjIndex])
+                    #self.collisionDetection(self.drawObjectsArray[collObjIndex])
 
                 # and append myself
                 np.append(world.grid[self.voxel], self.index)
@@ -79,20 +83,48 @@ class particle(object.object):
             else:
                 np.delete(world.grid[preVoxel], self.index)
 
-    def calcForceCollision(self, world, x, z):
+    def calcForceCollisionWithTerrain(self, world, x, z):
         # returns angle and direction in the Form:
 
-        # RealPositin is my position added the worldSize -1 (because of array init)
+        # RealPositin is my position in world
         xReal = self.position[0] + world.worldSize - 1
         zReal = self.position[2] + world.worldSize - 1
 
-        # calc the x and z Force
-        xForce = x - xReal
-        zForce = z - zReal
+        # calc the x and z direction
+        collisionDirection = [x - xReal, z - zReal]
 
-        # sum it up in ForceArray
-        collisionForce = [xForce,(1-(abs(xForce) + abs(zForce))),zForce]
+        # local Terrain Height (absolut Height - position[1])
+        localHeight = abs(world.terrainHeightMap[x][z] - self.position[1])
 
+
+        print "mySpeed:", self.speed
+        print "collisionDirection ", collisionDirection
+        ax = atan2(sqrt(self.speed[1] ** 2 + self.speed[2] ** 2), self.speed[0])
+        ay = atan2(sqrt(self.speed[2] ** 2 + self.speed[0] ** 2), self.speed[1])
+        az = atan2(sqrt(self.speed[0] ** 2 + self.speed[1] ** 2), self.speed[2])
+        print "angles of Particles", ax, ay, az
+
+        # angle on Terrain x = asin(a/b) a = localHeight, c = length between x,z and self.position[0], self.position[2]:
+        angleT = asin(localHeight/(sqrt((self.position[0]-x)**2 + (self.position[2]-z)**2)))
+        print "angle of hit Terrain", angleT
+
+        # angle of the Particle on the Terain(- pi/2 to get the next to calc X)
+        px = (pi - ax - angleT) - pi/2
+        py = (pi - ay - angleT) - pi/2
+        pz = (pi - az - angleT) - pi/2
+
+        fx = pi - px * 2 + ax
+        fy = pi - py * 2 + ay
+        fz = pi - pz * 2 + az
+        # outgoing angle:
+
+
+        print "angles of Particle", fx, fy, fz
+
+        # if the angle is 0 it's it's fully up. if it's near to 1 it's in collisionDirection.
+
+        collisionForce = [fx, fy, fz]
+        print "collisionForce ", collisionForce
         return (collisionForce)
 
     def increment(self, dt, world):
@@ -110,12 +142,12 @@ class particle(object.object):
         # if there is a Collision with Terrain
         if self.position[1] <= world.terrainHeightMap[x][z]:
             # calculate the Angle and direction
-            collisionForce = self.calcForceCollision(world, x, z)
+            collisionForce = self.calcForceCollisionWithTerrain(world, x, z)
 
             # react on Collision
             self.collisionResponse(collisionForce)
         else:
-            self.applyGravity(passed)
+            self.applyGravityAndAirDrag(passed)
 
         # calc new Posititon
         # new position is old position + speed in dependence to the time gone
@@ -169,7 +201,7 @@ class particle(object.object):
             )
             isColliding = distance < (tmpP[3] + tmpO[3])
 
-        elif isinstance(obj, object.object):
+        '''elif isinstance(obj, object.object):
             x = max((tmpO[0] - obj.position[0]), min((tmpP[0] - self.position[0]), (tmpO[1] - obj.position[0])))
             y = max((tmpO[2] - obj.position[1]), min((tmpP[1] - self.position[1]), (tmpO[3] - obj.position[1])))
             z = max((tmpO[4] - obj.position[2]), min((tmpP[2] - self.position[2]), (tmpO[5] - obj.position[2])))
@@ -178,9 +210,10 @@ class particle(object.object):
                 math.pow((y - (tmpP[1] - self.position[1])), 2) +
                 math.pow((z - (tmpP[2] - self.position[2])), 2)
             )
-            isColliding = distance < tmpP[3]
+            isColliding = distance < tmpP[3]'''
 
         if isColliding:
-            self.collisionResponse()
-            obj.collisionResponse()
+            # @todo false yet
+            self.collisionResponse(obj.speed)
+            obj.collisionResponse(self.speed)
 
