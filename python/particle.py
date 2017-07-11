@@ -6,7 +6,7 @@ import math
 import pywavefront
 import object
 import numpy as np
-from math import atan2, sqrt, asin, pi
+from math import atan2, sqrt, atan, pi, degrees
 
 # The Gravitation
 gravitation = [0, -9.81, 0]
@@ -23,7 +23,7 @@ class particle(object.object):
         self.speed = speed
 
         # and an own elasticity 1:perfect bounce 0: zero bounce 0.7
-        self.elasticity = 0.7
+        self.elasticity = 1
 
         # and an own mass
         self.mass = mass
@@ -84,46 +84,53 @@ class particle(object.object):
                 np.delete(world.grid[preVoxel], self.index)
 
     def calcForceCollisionWithTerrain(self, world, x, z):
-        # returns angle and direction in the Form:
+        # returns angle and direction mapped to 1
 
         # RealPositin is my position in world
         xReal = self.position[0] + world.worldSize - 1
         zReal = self.position[2] + world.worldSize - 1
 
-        # calc the x and z direction
-        collisionDirection = [x - xReal, z - zReal]
+        # x, Z Coeffizeint, 0,5 = Full = 1
+        xCoe = (xReal-x) / (abs(xReal-x)+abs(zReal-z))
+        zCoe = (zReal-z) / (abs(xReal-x)+abs(zReal-z))
+        print "x", xCoe, "z", zCoe
 
         # local Terrain Height (absolut Height - position[1])
         localHeight = abs(world.terrainHeightMap[x][z] - self.position[1])
 
-
         print "mySpeed:", self.speed
-        print "collisionDirection ", collisionDirection
+        # calculate angle from Particles with ground(not terrain)
         ax = atan2(sqrt(self.speed[1] ** 2 + self.speed[2] ** 2), self.speed[0])
         ay = atan2(sqrt(self.speed[2] ** 2 + self.speed[0] ** 2), self.speed[1])
         az = atan2(sqrt(self.speed[0] ** 2 + self.speed[1] ** 2), self.speed[2])
-        print "angles of Particles", ax, ay, az
+        print "Particle angle on ground: ", degrees(ax), degrees(ay), degrees(az)
 
         # angle on Terrain x = asin(a/b) a = localHeight, c = length between x,z and self.position[0], self.position[2]:
-        angleT = asin(localHeight/(sqrt((self.position[0]-x)**2 + (self.position[2]-z)**2)))
-        print "angle of hit Terrain", angleT
-
         # angle of the Particle on the Terain(- pi/2 to get the next to calc X)
-        px = (pi - ax - angleT) - pi/2
-        py = (pi - ay - angleT) - pi/2
-        pz = (pi - az - angleT) - pi/2
+        print "Terrain angle: ", degrees(atan(localHeight/(sqrt((xReal-x)**2 + (zReal-z)**2))))
 
-        fx = pi - px * 2 + ax
-        fy = pi - py * 2 + ay
-        fz = pi - pz * 2 + az
-        # outgoing angle:
+        pOnTx = (ax - atan(localHeight/(sqrt((xReal-x)**2 + (zReal-z)**2))) )* xCoe
+        pOnTy = ay - atan(localHeight/(sqrt((xReal-x)**2 + (zReal-z)**2)))
+        pOnTz = (az - atan(localHeight/(sqrt((xReal-x)**2 + (zReal-z)**2))) )* zCoe
+
+        print "angles of Particle with Terrain", degrees(pOnTx), degrees(pOnTy), degrees(pOnTz)
 
 
-        print "angles of Particle", fx, fy, fz
+        outAngles = [pi-pOnTx , pi-pOnTy, pi-pOnTz]
+        normOutAngles = [outAngles[0] / (abs(outAngles[0]) + abs(outAngles[1]) + abs(outAngles[2])),
+                         outAngles[1] / (abs(outAngles[0]) + abs(outAngles[1]) + abs(outAngles[2])),
+                         outAngles[2] / (abs(outAngles[0]) + abs(outAngles[1]) + abs(outAngles[2]))]
+        print "out angles of Particle with Terrain", (degrees(outAngles[0]),degrees(outAngles[1]),degrees(outAngles[2]))
+        print "normed", normOutAngles
 
         # if the angle is 0 it's it's fully up. if it's near to 1 it's in collisionDirection.
+        fullSpeed = abs(self.speed[0]) + abs(self.speed[1]) + abs(self.speed[2])
 
-        collisionForce = [fx, fy, fz]
+        # CollisionAngles mapped to one
+        collisionForce = [normOutAngles[0] * fullSpeed,
+                          normOutAngles[1] * fullSpeed,
+                          normOutAngles[2] * fullSpeed]
+
         print "collisionForce ", collisionForce
         return (collisionForce)
 
@@ -182,12 +189,11 @@ class particle(object.object):
 
     def collisionResponse(self, collisionForce):
         # fullSpeed has to be hold by
-        fullSpeed = self.speed[0] + self.speed[1] + self.speed[2]
-
+        print collisionForce
         # the collisionForce impacts the different Axis
-        self.speed[0] = abs(fullSpeed * collisionForce[0]*self.elasticity)
-        self.speed[1] = abs(fullSpeed * collisionForce[1]*self.elasticity)
-        self.speed[2] = abs(fullSpeed * collisionForce[2]*self.elasticity)
+        self.speed[0] = collisionForce[0] *self.elasticity
+        self.speed[1] = collisionForce[1] * self.elasticity
+        self.speed[2] = collisionForce[2] *self.elasticity
 
     def collisionDetection(self, obj):
         tmpP = self.getBound()
