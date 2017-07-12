@@ -133,7 +133,6 @@ def display():
               0.0, 0.0, 0.0,
               0.0, 0.0, 1.0)
 
-    c = 0
     for c in xrange(3):
         camera_trans_lag[c] += (camera_trans[c] - camera_trans_lag[c]) * inertia;
         camera_rot_lag[c] += (camera_rot[c] - camera_rot_lag[c]) * inertia;

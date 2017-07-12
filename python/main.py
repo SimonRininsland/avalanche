@@ -11,14 +11,22 @@ import particle, object, world
 width, height = (1280, 720)
 flakeCount = 5
 
+
 # for the light
 lightfv = ctypes.c_float * 4
 
 # ASCII OCTAL for ESCAPE
 ESCAPE = '\033'
+SPACEBAR = '\040'
 
 # my object array
 drawObjectsArray = []
+
+# camera movement
+camEyeX, camEyeY, camEyeZ = (0., 0., 0.)
+camCenterX, camCenterY, camCenterZ = (1., 1., 1.)
+camUpX, camUpY, camUpZ = (0., 0., 0.)
+
 
 def display():
     # gets called if glut thinks the window has to be redrawed (by click, resize...)
@@ -57,6 +65,11 @@ def drawLoop(deltaT):
     # display all the stuff
     # which colors will be cleared (all here- without alpha) - every frame
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
+
+    # gluLookAt(camEyeX, camEyeY, camEyeZ,
+    #           camCenterX, camCenterY, camCenterZ,
+    #           camUpX, camUpY, camUpZ)
+
     glLoadIdentity()
 
     # draw all my objects
@@ -77,13 +90,36 @@ def drawLoop(deltaT):
     glutTimerFunc(1000/60, drawLoop, 1000/60)
 
 def keyFunc(key, x, y):
+    global camEyeX, camEyeY, camEyeZ
+    global camCenterX, camCenterY, camCenterZ
+    global camUpX, camUpY, camUpZ
+
+    CamSpeed = 0.1
+
     if key == ESCAPE:
         sys.exit()
+    elif key == "w":
+
+        pass
+    elif key == "a":
+        pass
+    elif key == "s":
+        pass
+    elif key == "d":
+        pass
+    elif key == SPACEBAR:
+        camCenterY += CamSpeed
+    else:
+        print key
+
+    print camCenterY
 
 
 def mouseFunc(key, mode, x, y):
     if mode == 0 and key == 0:
         print("click")
+    print x,y
+
 
 def init():
     global world, drawObjectsArray
@@ -114,16 +150,20 @@ def init():
               0, 0, 0,
               0, 1, 0)
     '''
-
+    '''
     # view far away
     gluLookAt(20, 40, 5,
               0, 20, 0,
-              0, 1, 0)
+              0, 1, 0)'''
 
     # view near to test
-    '''gluLookAt(10, 30, 0,
-              0, 20, 0,
-              0, 1, 0)'''
+    # gluLookAt(100, 100, 0,
+    #           0, 0, 0,
+    #           0, 1, 0)
+
+    gluLookAt(50, 40, 10,
+              0, 0, 0,
+              0, 1, 0)
 
     # set MatrixMode for render
     glMatrixMode(GL_MODELVIEW)
@@ -140,6 +180,11 @@ def init():
     # setup one particle position, velocity, mass, obj
 
     # Spawn Flakes
+    # for i in xrange(flakeCount):
+    #     drawObjectsArray.append(particle.particle([uniform(-5.0, 5.0), uniform(24.0, 30.0),uniform(-5.0, 5.0)],
+    #     [0.0, 0.0, 0.0], uniform(.2, 1.0), 'resources/flake.obj', i, world, drawObjectsArray))
+
+    # collision Spawn Flakes
     for i in xrange(flakeCount):
         drawObjectsArray.append(particle.particle([uniform(-5.0, 5.0), uniform(24.0, 30.0),uniform(-5.0, 5.0)],
         [0.0, 0.0, 0.0], uniform(.2, 1.0), 'resources/flake.obj', i, world, drawObjectsArray))
