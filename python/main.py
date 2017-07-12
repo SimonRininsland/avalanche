@@ -9,7 +9,7 @@ from OpenGL.GLUT import *
 import particle, object, world
 
 width, height = (1280, 720)
-flakeCount = 1
+flakeCount = 5
 
 # for the light
 lightfv = ctypes.c_float * 4
