@@ -57,7 +57,7 @@ class Parser(object):
         args = values[1:]
         i = 0
         for arg in args:
-            if dir != '' and ('mtllib' in line or 'map_Kd' in line):
+            if dir != '' and ('mtllib' in line or 'map_Kd' in line or 'map_d' in line):
                 args[i] = dir + '/' + arg
             else:
                 args[i] = arg

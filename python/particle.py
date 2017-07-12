@@ -24,13 +24,13 @@ class particle(object.object):
         self.speed = speed
 
         # and an own elasticity 1:perfect bounce 0: zero bounce 0.7
-        self.elasticity = 1
+        self.elasticity = 0.7
 
         # and an own mass
         self.mass = mass
 
-        # and an air drag 0.8
-        self.airDrag = 0
+        # and an air drag 0.9
+        self.airDrag = 0.9
 
         # my obj
         self.obj = pywavefront.Wavefront(obj)
@@ -92,17 +92,26 @@ class particle(object.object):
         xReal = self.position[0] + world.worldSize - 1
         zReal = self.position[2] + world.worldSize - 1
 
+        xDifToCenter = xReal - x
+        zDifToCenter = zReal - z
+
         # identify Face collided
         myCollisionFace = [[x, world.terrainHeightMap[x][z], z]]
-        
-        if xReal-x >= 0:
-            myCollisionFace.append([x + 1, world.terrainHeightMap[x + 1][z], z])
+
+        # in right
+        if zDifToCenter >= 0:
+            # in upper Right
+            myCollisionFace.append([int(x + np.sign(xDifToCenter)), world.terrainHeightMap[int(x + np.sign(xDifToCenter))][z + 1], z + 1])
+            if xDifToCenter / zDifToCenter <= 1:
+                myCollisionFace.append([x, world.terrainHeightMap[x][z + 1], z + 1])
+            # Right
+            else:
+                myCollisionFace.append([int(x + np.sign(xDifToCenter)), world.terrainHeightMap[int(x + np.sign(xDifToCenter))][z], z])
         else:
-            myCollisionFace.append([x - 1, world.terrainHeightMap[x - 1][z], z])
-        if (zReal - z) >= 0:
-            myCollisionFace.append([x, world.terrainHeightMap[x][z + 1], z + 1])
-        if (zReal - z) < 0:
+            #down
             myCollisionFace.append([x, world.terrainHeightMap[x][z - 1], z - 1])
+            myCollisionFace.append([int(x + np.sign(xDifToCenter)), world.terrainHeightMap[int(x + np.sign(xDifToCenter))][z], z])
+
 
         # calculate normal of Face
         normal = np.cross(np.subtract(myCollisionFace[1], myCollisionFace[0]),
@@ -113,9 +122,8 @@ class particle(object.object):
         mapedVector = np.dot(self.speed, normalizedNormale)
         normalizeMapedVector = mapedVector/np.linalg.norm(mapedVector)
 
-        # calculate my output Vector
+        # calculate my output Vector @todo: self.position is wrong has to be the collision Point
         outputVector = np.subtract(np.add(2 * normalizeMapedVector * normalizedNormale, self.position), self.speed)
-
         return outputVector
 
     def increment(self, dt, world):
@@ -173,11 +181,13 @@ class particle(object.object):
 
     def collisionResponse(self, collisionForce):
         # fullSpeed has to be hold by
-        print collisionForce
         # the collisionForce impacts the different Axis
-        self.speed[0] = self.speed[0] * self.elasticity + collisionForce[0]
-        self.speed[1] = self.speed[1] * self.elasticity + collisionForce[1]
-        self.speed[2] = self.speed[2] * self.elasticity + collisionForce[2]
+        print "self.speed",self.speed
+        print "collisionForce", collisionForce
+        self.speed[0] += collisionForce[0] * self.elasticity
+        self.speed[1] += collisionForce[1] * self.elasticity
+        self.speed[2] += collisionForce[2] * self.elasticity
+        print "self.speed after", self.speed
 
     def collisionResponseParticle(self, obj):
 
