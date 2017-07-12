@@ -11,6 +11,8 @@ from math import atan2, sqrt, atan, pi, degrees
 # The Gravitation
 gravitation = [0, -9.81, 0]
 
+# collisionDistanceThreshold
+collisionDistanceThreshold = 0.2
 
 class particle(object.object):
     def __init__(self, position, speed, mass, obj, index, world, drawObjectsArray):
@@ -88,7 +90,28 @@ class particle(object.object):
 
         pass
 
-    def calcForceCollisionWithTerrain(self, world, x, z):
+    def calcForceCollisionWithTerrain(self, world, x, z, normalizedNormale):
+        # map NormalVector on myVector
+        mapedVector = np.dot(self.speed, normalizedNormale)
+        normalizeMapedVector = mapedVector/np.linalg.norm(mapedVector)
+
+        # calculate my output Vector @todo: self.position is wrong has to be the collision Point
+        outputVector = np.subtract(np.add(2 * normalizeMapedVector * normalizedNormale, self.position), self.speed)
+        return outputVector
+
+    def increment(self, dt, world):
+
+        # save voxel before
+        preVoxel = self.voxel
+
+        # we want time passed in seconds
+        passed = float(dt) / 1000
+
+        # collision with heightmap
+        x = int(round(self.position[0])) + world.worldSize - 1
+        z = int(round(self.position[2])) + world.worldSize - 1
+
+        #relaposition
         xReal = self.position[0] + world.worldSize - 1
         zReal = self.position[2] + world.worldSize - 1
 
@@ -112,39 +135,28 @@ class particle(object.object):
             myCollisionFace.append([x, world.terrainHeightMap[x][z - 1], z - 1])
             myCollisionFace.append([int(x + np.sign(xDifToCenter)), world.terrainHeightMap[int(x + np.sign(xDifToCenter))][z], z])
 
+        # there could be a collision
+        if self.position[1] <= max([myCollisionFace[0][1],myCollisionFace[1][1],myCollisionFace[2][1]]):
+            # calculate normal of Face
+            normal = np.cross(np.subtract(myCollisionFace[1], myCollisionFace[0]),
+                              np.subtract(myCollisionFace[2], myCollisionFace[0]))
+            normalizedNormale = normal / np.linalg.norm(normal)
 
-        # calculate normal of Face
-        normal = np.cross(np.subtract(myCollisionFace[1], myCollisionFace[0]),
-                            np.subtract(myCollisionFace[2], myCollisionFace[0]))
-        normalizedNormale = normal/np.linalg.norm(normal)
+            # calculate Line passing through
+            line = np.subtract(normalizedNormale* myCollisionFace[0], normalizedNormale*[xReal, self.position[1], zReal])
 
-        # map NormalVector on myVector
-        mapedVector = np.dot(self.speed, normalizedNormale)
-        normalizeMapedVector = mapedVector/np.linalg.norm(mapedVector)
+            # intersectionPoint
+            intersectionPoint = np.add([xReal, self.position[1],zReal], line * normalizedNormale)
 
-        # calculate my output Vector @todo: self.position is wrong has to be the collision Point
-        outputVector = np.subtract(np.add(2 * normalizeMapedVector * normalizedNormale, self.position), self.speed)
-        return outputVector
+            # distance between position and Terrain
+            distance = np.linalg.norm(np.subtract([xReal, self.position[1],zReal], intersectionPoint))
 
-    def increment(self, dt, world):
-
-        # save voxel before
-        preVoxel = self.voxel
-
-        # we want time passed in seconds
-        passed = float(dt) / 1000
-
-        # collision with heightmap
-        x = int(round(self.position[0])) + world.worldSize - 1
-        z = int(round(self.position[2])) + world.worldSize - 1
-
-        # if there is a Collision with Terrain
-        if self.position[1] <= world.terrainHeightMap[x][z]:
             # calculate the Angle and direction
-            collisionForce = self.calcForceCollisionWithTerrain(world, x, z)
+            if distance <= collisionDistanceThreshold:
+                collisionForce = self.calcForceCollisionWithTerrain(world, x, z, normalizedNormale)
 
-            # react on Collision
-            self.collisionResponse(collisionForce)
+                # react on Collision
+                self.collisionResponse(collisionForce)
         else:
             self.applyGravityAndAirDrag(passed)
 
