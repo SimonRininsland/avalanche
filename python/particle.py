@@ -11,8 +11,8 @@ from math import atan2, sqrt, atan, pi, degrees
 # The Gravitation
 gravitation = [0, -9.81, 0]
 
-# collisionDistanceThreshold
-collisionDistanceThreshold = 0.2
+# check if the distace to plane is less than Threshold
+collisionDistanceThreshold = 0.1
 
 class particle(object.object):
     def __init__(self, position, speed, mass, obj, index, world, drawObjectsArray):
@@ -87,33 +87,31 @@ class particle(object.object):
                 np.delete(world.grid[preVoxel], self.index)
 
     def calcForceCollisionWithParticle(self, world, x, z):
-
         pass
 
-    def calcForceCollisionWithTerrain(self, world, x, z, normalizedNormale):
+    def calcForceCollisionWithTerrain(self, normalizedNormale):
         # map NormalVector on myVector
         mapedVector = np.dot(self.speed, normalizedNormale)
         normalizeMapedVector = mapedVector/np.linalg.norm(mapedVector)
 
-        # calculate my output Vector @todo: self.position is wrong has to be the collision Point
-        outputVector = np.subtract(np.add(2 * normalizeMapedVector * normalizedNormale, self.position), self.speed)
+        # calculate my output Vector
+        # have to set selfpoistion[1] to 0, because plane is not at 0 but has a hight from normal 0
+        outputPoint = np.subtract(np.add(2 * normalizeMapedVector * normalizedNormale, [self.position[0],0,self.position[2]]), self.speed)
+
+        # and set the y force double
+        outputVector = [outputPoint[0],outputPoint[1]*2,outputPoint[2]]
+
         return outputVector
 
-    def increment(self, dt, world):
-
-        # save voxel before
-        preVoxel = self.voxel
-
-        # we want time passed in seconds
-        passed = float(dt) / 1000
-
+    def checkCollisonWithterrain(self, passed, world):
         # collision with heightmap
         x = int(round(self.position[0])) + world.worldSize - 1
         z = int(round(self.position[2])) + world.worldSize - 1
 
-        #relaposition
+        # relaposition
         xReal = self.position[0] + world.worldSize - 1
         zReal = self.position[2] + world.worldSize - 1
+        realPosition = [xReal, self.position[1], zReal]
 
         xDifToCenter = xReal - x
         zDifToCenter = zReal - z
@@ -124,41 +122,59 @@ class particle(object.object):
         # in right
         if zDifToCenter >= 0:
             # in upper Right
-            myCollisionFace.append([int(x + np.sign(xDifToCenter)), world.terrainHeightMap[int(x + np.sign(xDifToCenter))][z + 1], z + 1])
+            myCollisionFace.append(
+                [int(x + np.sign(xDifToCenter)), world.terrainHeightMap[int(x + np.sign(xDifToCenter))][z + 1], z + 1])
             if xDifToCenter / zDifToCenter <= 1:
                 myCollisionFace.append([x, world.terrainHeightMap[x][z + 1], z + 1])
             # Right
             else:
-                myCollisionFace.append([int(x + np.sign(xDifToCenter)), world.terrainHeightMap[int(x + np.sign(xDifToCenter))][z], z])
+                myCollisionFace.append(
+                    [int(x + np.sign(xDifToCenter)), world.terrainHeightMap[int(x + np.sign(xDifToCenter))][z], z])
         else:
-            #down
+            # down
             myCollisionFace.append([x, world.terrainHeightMap[x][z - 1], z - 1])
-            myCollisionFace.append([int(x + np.sign(xDifToCenter)), world.terrainHeightMap[int(x + np.sign(xDifToCenter))][z], z])
+            myCollisionFace.append(
+                [int(x + np.sign(xDifToCenter)), world.terrainHeightMap[int(x + np.sign(xDifToCenter))][z], z])
 
         # there could be a collision
-        if self.position[1] <= max([myCollisionFace[0][1],myCollisionFace[1][1],myCollisionFace[2][1]]):
+        if self.position[1] <= max([myCollisionFace[0][1], myCollisionFace[1][1], myCollisionFace[2][1]]):
             # calculate normal of Face
             normal = np.cross(np.subtract(myCollisionFace[1], myCollisionFace[0]),
                               np.subtract(myCollisionFace[2], myCollisionFace[0]))
             normalizedNormale = normal / np.linalg.norm(normal)
 
             # calculate Line passing through
-            line = np.subtract(normalizedNormale* myCollisionFace[0], normalizedNormale*[xReal, self.position[1], zReal])
+            line = np.subtract(normalizedNormale * myCollisionFace[0],
+                               normalizedNormale * [xReal, self.position[1], zReal])
 
             # intersectionPoint
-            intersectionPoint = np.add([xReal, self.position[1],zReal], line * normalizedNormale)
+            intersectionPoint = np.add(realPosition, line * normalizedNormale)
 
             # distance between position and Terrain
-            distance = np.linalg.norm(np.subtract([xReal, self.position[1],zReal], intersectionPoint))
+            distance = np.linalg.norm(np.subtract(realPosition, intersectionPoint))
 
-            # calculate the Angle and direction
+            # check if the distace to plane is less than Threshold
+            print distance
+
+            # make distance related to speed
             if distance <= collisionDistanceThreshold:
-                collisionForce = self.calcForceCollisionWithTerrain(world, x, z, normalizedNormale)
-
+                collisionForce = self.calcForceCollisionWithTerrain(normalizedNormale)
+                print collisionForce
                 # react on Collision
                 self.collisionResponse(collisionForce)
         else:
             self.applyGravityAndAirDrag(passed)
+
+    def increment(self, dt, world):
+
+        # save voxel before
+        preVoxel = self.voxel
+
+        # we want time passed in seconds
+        passed = float(dt) / 1000
+
+        # check and react on Terrain Collision
+        self.checkCollisonWithterrain(passed, world)
 
         # calc new Posititon
         # new position is old position + speed in dependence to the time gone
@@ -194,12 +210,9 @@ class particle(object.object):
     def collisionResponse(self, collisionForce):
         # fullSpeed has to be hold by
         # the collisionForce impacts the different Axis
-        print "self.speed",self.speed
-        print "collisionForce", collisionForce
         self.speed[0] += collisionForce[0] * self.elasticity
         self.speed[1] += collisionForce[1] * self.elasticity
         self.speed[2] += collisionForce[2] * self.elasticity
-        print "self.speed after", self.speed
 
     def collisionResponseParticle(self, obj):
 
