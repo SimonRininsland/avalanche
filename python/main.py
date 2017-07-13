@@ -9,7 +9,7 @@ from OpenGL.GLUT import *
 import particle, object, world
 
 width, height = (1280, 720)
-flakeCount = 1
+flakeCount = 100
 
 
 # for the light
@@ -152,7 +152,7 @@ def init():
     '''
 
     # view far away
-    gluLookAt(5, 25, 5,
+    gluLookAt(25, 40, 5,
               0, 20, 0,
               0, 1, 0)
 
@@ -186,7 +186,7 @@ def init():
 
     # collision Spawn Flakes
     for i in xrange(flakeCount):
-        drawObjectsArray.append(particle.particle([uniform(-1.0, 1.0), uniform(24.0, 30.0),uniform(-1.0, 1.0)],
+        drawObjectsArray.append(particle.particle([uniform(-10.0, 10.0), uniform(30.0, 45.0),uniform(-10.0, 10.0)],
         [0.0, 0.0, 0.0], uniform(.2, 1.0), 'resources/flake.obj', i, world, drawObjectsArray))
 
 

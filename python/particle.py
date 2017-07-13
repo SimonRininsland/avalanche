@@ -12,7 +12,7 @@ from math import atan2, sqrt, atan, pi, degrees
 gravitation = [0, -9.81, 0]
 
 # check if the distace to plane is less than Threshold
-collisionDistanceThreshold = 0.1
+collisionDistanceThreshold = 0.2
 
 class particle(object.object):
     def __init__(self, position, speed, mass, obj, index, world, drawObjectsArray):
@@ -26,13 +26,13 @@ class particle(object.object):
         self.speed = speed
 
         # and an own elasticity 1:perfect bounce 0: zero bounce 0.7
-        self.elasticity = 0.7
+        self.elasticity = 0.9
 
         # and an own mass
         self.mass = mass
 
         # and an air drag 0.9
-        self.airDrag = 0.9
+        self.airDrag = 0.5
 
         # my obj
         self.obj = pywavefront.Wavefront(obj)
@@ -45,6 +45,7 @@ class particle(object.object):
         # my voxel
         self.voxel = [self.voxelIndex]
 
+        # allObjects
         self.drawObjectsArray = drawObjectsArray
 
     def applyGravityAndAirDrag(self, dt):
@@ -64,6 +65,7 @@ class particle(object.object):
                       [int(round(self.position[2])) + world.worldSize]]
 
         # if voxel is empty
+        print self.voxel
         if world.grid[self.voxel] == -1:
             world.grid[self.voxel] = self.index
         else:
@@ -105,12 +107,12 @@ class particle(object.object):
 
     def checkCollisonWithterrain(self, passed, world):
         # collision with heightmap
-        x = int(round(self.position[0])) + world.worldSize - 1
-        z = int(round(self.position[2])) + world.worldSize - 1
+        x = int(round(self.position[0])) + world.worldSize
+        z = int(round(self.position[2])) + world.worldSize
 
-        # relaposition
-        xReal = self.position[0] + world.worldSize - 1
-        zReal = self.position[2] + world.worldSize - 1
+        # realposition
+        xReal = self.position[0] + world.worldSize
+        zReal = self.position[2] + world.worldSize
         realPosition = [xReal, self.position[1], zReal]
 
         xDifToCenter = xReal - x
@@ -138,32 +140,33 @@ class particle(object.object):
 
         # there could be a collision
         if self.position[1] <= max([myCollisionFace[0][1], myCollisionFace[1][1], myCollisionFace[2][1]]):
+
             # calculate normal of Face
             normal = np.cross(np.subtract(myCollisionFace[1], myCollisionFace[0]),
                               np.subtract(myCollisionFace[2], myCollisionFace[0]))
             normalizedNormale = normal / np.linalg.norm(normal)
 
-            # calculate Line passing through
-            line = np.subtract(normalizedNormale * myCollisionFace[0],
-                               normalizedNormale * [xReal, self.position[1], zReal])
+            # calculate Line to my position from a trianlge Point
+            line = np.subtract(realPosition, myCollisionFace[0])
 
-            # intersectionPoint
-            intersectionPoint = np.add(realPosition, line * normalizedNormale)
+            # vector from trianlge to point
+            vecTriToP = -normalizedNormale * np.dot(line, normalizedNormale)
 
             # distance between position and Terrain
-            distance = np.linalg.norm(np.subtract(realPosition, intersectionPoint))
+            distance = np.linalg.norm(vecTriToP)
 
             # check if the distace to plane is less than Threshold
-            print distance
-
-            # make distance related to speed
-            if distance <= collisionDistanceThreshold:
+            # @todo: make distance related to speed
+            if distance <= collisionDistanceThreshold or self.position[1] <= min([myCollisionFace[0][1], myCollisionFace[1][1], myCollisionFace[2][1]]):
+                # calc CollisionForce
                 collisionForce = self.calcForceCollisionWithTerrain(normalizedNormale)
-                print collisionForce
                 # react on Collision
                 self.collisionResponse(collisionForce)
+
         else:
             self.applyGravityAndAirDrag(passed)
+
+        return realPosition
 
     def increment(self, dt, world):
 
@@ -174,16 +177,27 @@ class particle(object.object):
         passed = float(dt) / 1000
 
         # check and react on Terrain Collision
-        self.checkCollisonWithterrain(passed, world)
+        realPosition = self.checkCollisonWithterrain(passed, world)
 
-        # calc new Posititon
-        # new position is old position + speed in dependence to the time gone
-        self.position[0] += self.speed[0] * passed
-        self.position[1] += self.speed[1] * passed
-        self.position[2] += self.speed[2] * passed
+        if 1 <= realPosition[0] < world.gridResolution and 1 <= realPosition[2] < world.gridResolution:
+            # calc new Posititon
+            # new position is old position + speed in dependence to the time gone
+            self.position[0] += self.speed[0] * passed
+            self.position[1] += self.speed[1] * passed
+            self.position[2] += self.speed[2] * passed
 
-        # check Grid
-        self.checkGrid(preVoxel, world)
+            # check Grid
+            self.checkGrid(preVoxel, world)
+
+        else:
+            print realPosition[0]
+            print realPosition[2]
+            # calc new with Wall
+            # new position is old position + speed in dependence to the time gone
+            self.position[0] = self.position[0]
+            self.position[1] += self.speed[1] * passed
+            self.position[2] = self.position[2]
+
 
     # @todo: some function to combine two particles to one
     def combine(self, other):
