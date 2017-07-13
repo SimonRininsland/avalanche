@@ -47,6 +47,7 @@ class Material(object):
         self.emissive = [0., 0., 0., 1.]
         self.shininess = 0.
         self.texture = None
+        self.alphamap = None
 
         # Interleaved array of floats in GL_T2F_N3F_V3F format
         self.vertices = []
@@ -83,6 +84,9 @@ class Material(object):
     def set_texture(self, path):
         self.texture = texture.Texture(path)
 
+    def set_alpha_map(self, path):
+        self.alphamap = texture.Texture(path)
+
     def unset_texture(self):
         self.texture = None
 
@@ -93,6 +97,8 @@ class Material(object):
     def draw(self, face=GL_FRONT_AND_BACK):
         if self.texture:
             self.texture.draw()
+            if self.alphamap:
+                self.texture.drawAlphaMap()
         else:
             glDisable(GL_TEXTURE_2D)
 
@@ -145,6 +151,10 @@ class MaterialParser(parser.Parser):
     def parse_map_Kd(self, args):
         [Kd] = args
         self.this_material.set_texture(Kd)
+
+    def parse_map_d(self, args):
+        [Ma] = args
+        self.this_material.set_alpha_map(Ma)
 
     def parse_Ni(self, args):
         # unimplemented

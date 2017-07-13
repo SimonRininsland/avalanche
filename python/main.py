@@ -9,7 +9,7 @@ from OpenGL.GLUT import *
 import particle, object, world
 
 width, height = (1280, 720)
-flakeCount = 5
+flakeCount = 100
 
 
 # for the light
@@ -150,21 +150,21 @@ def init():
               0, 0, 0,
               0, 1, 0)
     '''
-    '''
+
     # view far away
-    gluLookAt(20, 40, 5,
+    gluLookAt(25, 40, 5,
               0, 20, 0,
-              0, 1, 0)'''
+              0, 1, 0)
 
     # view near to test
     # gluLookAt(100, 100, 0,
     #           0, 0, 0,
     #           0, 1, 0)
-
-    gluLookAt(50, 40, 10,
+    '''
+    gluLookAt(20, 25, 10,
               0, 0, 0,
               0, 1, 0)
-
+    '''
     # set MatrixMode for render
     glMatrixMode(GL_MODELVIEW)
 
@@ -186,8 +186,8 @@ def init():
 
     # collision Spawn Flakes
     for i in xrange(flakeCount):
-        drawObjectsArray.append(particle.particle([uniform(-5.0, 5.0), uniform(24.0, 30.0),uniform(-5.0, 5.0)],
-        [0.0, 0.0, 0.0], uniform(.2, 1.0), 'resources/flake.obj', i+1, world, drawObjectsArray))
+        drawObjectsArray.append(particle.particle([uniform(-10.0, 10.0), uniform(30.0, 45.0),uniform(-10.0, 10.0)],
+        [0.0, 0.0, 0.0], uniform(.2, 1.0), 'resources/flake.obj', i, world, drawObjectsArray))
 
 
     # near spawn

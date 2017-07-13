@@ -49,6 +49,14 @@ class Texture(object):
         gl.glTexParameterf(self.image.target,
                            gl.GL_TEXTURE_WRAP_T, gl.GL_CLAMP)
 
+    def drawAlphaMap(self):
+        glEnable(self.image.target)
+        glBindTexture(self.image.target, self.image.id)
+        gl.glTexParameterf(self.image.target,
+                           gl.GL_TEXTURE_WRAP_S, gl.GL_CLAMP)
+        gl.glTexParameterf(self.image.target,
+                           gl.GL_TEXTURE_WRAP_T, gl.GL_CLAMP)
+
     def verify_dimensions(self):
         self.verify('width')
         self.verify('height')
