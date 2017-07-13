@@ -187,7 +187,7 @@ def init():
     # collision Spawn Flakes
     for i in xrange(flakeCount):
         drawObjectsArray.append(particle.particle([uniform(-5.0, 5.0), uniform(24.0, 30.0),uniform(-5.0, 5.0)],
-        [0.0, 0.0, 0.0], uniform(.2, 1.0), 'resources/flake.obj', i, world, drawObjectsArray))
+        [0.0, 0.0, 0.0], uniform(.2, 1.0), 'resources/flake.obj', i+1, world, drawObjectsArray))
 
 
     # near spawn

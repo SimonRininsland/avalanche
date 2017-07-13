@@ -68,9 +68,9 @@ class particle(object.object):
             if world.grid[self.voxel] != self.index:
                 # check a collision
                 for collObjIndex in world.grid[self.voxel]:
-                    pass
-                    # @todo: Next step Collide with other Particles
-                    #self.collisionDetection(self.drawObjectsArray[collObjIndex])
+                    if isinstance(self.drawObjectsArray[collObjIndex], particle):
+                        if self.index != self.drawObjectsArray[collObjIndex].index:
+                            self.collisionDetection(self.drawObjectsArray[collObjIndex])
 
                 # and append myself
                 np.append(world.grid[self.voxel], self.index)
@@ -84,9 +84,37 @@ class particle(object.object):
             else:
                 np.delete(world.grid[preVoxel], self.index)
 
-    def calcForceCollisionWithParticle(self, world, x, z):
+    def calcForceCollisionWithParticle(self, obj):
 
-        pass
+
+        tmpS = self.getBound()
+        tmpO = obj.getBound()
+
+        # midpoint in world
+        xs, ys, zs = (tmpS[0] + self.position[0], tmpS[1] + self.position[1], tmpS[2] + self.position[2])
+        xo, yo, zo = (tmpO[0] + obj.position[0], tmpO[1] + obj.position[1], tmpO[2] + obj.position[2])
+
+        # distance between two points
+        xr, yr, zr = (xo - xs, yo - ys, zo - zs)
+
+        # collision point
+        xc, yc, zc = (xo - xr / 2, yo - yr / 2, zo - zr / 2)
+
+        collisionPoint = (xc, yc, zc)
+
+        vn1 = collisionPoint / np.linalg.norm(collisionPoint) * np.dot(self.speed, collisionPoint) / np.linalg.norm(
+            collisionPoint)
+
+        vt1 = collisionPoint - vn1
+
+        vn2 = collisionPoint / np.linalg.norm(collisionPoint) * np.dot(obj.speed, collisionPoint) / np.linalg.norm(
+            collisionPoint)
+
+        vt2 = collisionPoint - vn1
+
+        self.collisionResponse((vn2 + vt1))
+        obj.collisionResponse((vn1 + vt2))
+
 
     def calcForceCollisionWithTerrain(self, world, x, z):
         xReal = self.position[0] + world.worldSize - 1
@@ -163,7 +191,7 @@ class particle(object.object):
     def getBound(self):
         xs = [v[0] for v in self.obj.vertx]
 
-        r = ((max(xs) - min(xs)) * self.mass / 2)
+        r = (max(xs) - min(xs))
 
         x = (max(xs) - r)
         y = (max(xs) - r)
@@ -179,22 +207,6 @@ class particle(object.object):
         self.speed[1] = self.speed[1] * self.elasticity + collisionForce[1]
         self.speed[2] = self.speed[2] * self.elasticity + collisionForce[2]
 
-    def collisionResponseParticle(self, obj):
-
-        self.speed = [self.speed[0] * -1, self.speed[1] * -1, self.speed[2] * -1]
-
-        tmpS = self.getBound()
-        tmpO = obj.getBound()
-
-        # midpoint in world
-        xs, ys, zs = (tmpS[0] + self.position[0], tmpS[1] + self.position[1], tmpS[2] + self.position[2])
-        xo, yo, zo = (tmpO[0] + obj.position[0], tmpO[1] + obj.position[1], tmpO[2] + obj.position[2])
-
-        # distance between two points
-        xr, yr, zr = (xs - xo, ys - yo, zs - zo)
-
-        # collision point
-        xc, yc, zc = (xo - xr / 2, yo - yr / 2, zo - zr / 2)
 
     def collisionDetection(self, obj):
         tmpP = self.getBound()
@@ -209,6 +221,4 @@ class particle(object.object):
             isColliding = distance < (tmpP[3] + tmpO[3])
 
         if isColliding:
-            # @todo false yet
-            self.collisionResponseParticle(obj)
-            obj.collisionResponseParticle(self)
+            self.calcForceCollisionWithParticle(obj)
