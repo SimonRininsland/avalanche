@@ -121,15 +121,10 @@ class particle(object.object):
 
     def calcForceCollisionWithTerrain(self, normalizedNormale):
         # map NormalVector on myVector
-        mapedVector = np.dot(self.speed, normalizedNormale)
-        normalizeMapedVector = mapedVector/np.linalg.norm(mapedVector)
+        mapedVector = np.dot(self.speed, normalizedNormale)/np.linalg.norm(normalizedNormale)
 
         # calculate my output Vector
-        # have to set selfpoistion[1] to 0, because plane is not at 0 but has a hight from normal 0
-        outputPoint = np.subtract(np.add(2 * normalizeMapedVector * normalizedNormale, [self.position[0],0,self.position[2]]), self.speed)
-
-        # and set the y force double
-        outputVector = [outputPoint[0],outputPoint[1]*2,outputPoint[2]]
+        outputVector = np.add(np.subtract((2 * mapedVector * normalizedNormale), self.speed), self.position)
 
         return outputVector
 
@@ -186,7 +181,7 @@ class particle(object.object):
             # i calculate the normal of the collisionFace
             # i calculate a normal from a second Face with 2 points from CollisionFace and one is my point
             # i normalize both and calc a dot Product. DotProduct of two normalized vectors is 1 if they are parralel
-            # (menas here the same). Because position is changes per Frame we hae to add a Threshold
+            # (means here the same). Because position is changes per Frame we hae to add a Threshold
 
             # calculate normal of Face
             normal = np.cross(np.subtract(myCollisionFace[1], myCollisionFace[0]),
