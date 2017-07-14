@@ -33,9 +33,9 @@ class object():
     def getHeightMap(self, world):
         # map heigth of vertice in array
         for vertice in self.obj.vertx:
-            x = int(round(vertice[0])) + world.worldSize - 1
-            y = int(round(vertice[1]))
-            z = int(round(vertice[2])) + world.worldSize - 1
+            x = int(round(vertice[0])) + world.worldSize
+            y = vertice[1]
+            z = int(round(vertice[2])) + world.worldSize
 
             world.terrainHeightMap[x][z] = y
 

@@ -12,7 +12,7 @@ from math import atan2, sqrt, atan, pi, degrees
 gravitation = [0, -9.81, 0]
 
 # check if the distace to plane is less than Threshold
-collisionDistanceThreshold = 0.2
+collisionDistanceThreshold = 0.01
 
 class particle(object.object):
     def __init__(self, position, speed, mass, obj, index, world, drawObjectsArray):
@@ -32,7 +32,7 @@ class particle(object.object):
         self.mass = mass
 
         # and an air drag 0.9
-        self.airDrag = 0.5
+        self.airDrag = 0.8
 
         # my obj
         self.obj = pywavefront.Wavefront(obj)
@@ -65,7 +65,6 @@ class particle(object.object):
                       [int(round(self.position[2])) + world.worldSize]]
 
         # if voxel is empty
-        print self.voxel
         if world.grid[self.voxel] == -1:
             world.grid[self.voxel] = self.index
         else:
@@ -151,29 +150,57 @@ class particle(object.object):
         myCollisionFace = [[x, world.terrainHeightMap[x][z], z]]
 
         # in right
-        if zDifToCenter >= 0:
-            # in upper Right
-            myCollisionFace.append(
-                [int(x + np.sign(xDifToCenter)), world.terrainHeightMap[int(x + np.sign(xDifToCenter))][z + 1], z + 1])
-            if xDifToCenter / zDifToCenter <= 1:
-                myCollisionFace.append([x, world.terrainHeightMap[x][z + 1], z + 1])
-            # Right
+        if xDifToCenter >= 0:
+            if zDifToCenter >= 0:
+                # in upper Right
+                myCollisionFace.append([x + 1, world.terrainHeightMap[x + 1][z + 1], z + 1])
+                # to exlude 0/0
+                if (xDifToCenter == zDifToCenter or xDifToCenter / zDifToCenter <= 1) and zDifToCenter != 0:
+                    myCollisionFace.append([x, world.terrainHeightMap[x][z + 1], z + 1])
+                # Right
+                else:
+                    myCollisionFace.append([x + 1, world.terrainHeightMap[x + 1][z], z])
             else:
-                myCollisionFace.append(
-                    [int(x + np.sign(xDifToCenter)), world.terrainHeightMap[int(x + np.sign(xDifToCenter))][z], z])
+                #down
+                myCollisionFace.append([x, world.terrainHeightMap[x][z - 1], z - 1])
+                myCollisionFace.append([x + 1, world.terrainHeightMap[x + 1][z], z])
         else:
-            # down
-            myCollisionFace.append([x, world.terrainHeightMap[x][z - 1], z - 1])
-            myCollisionFace.append(
-                [int(x + np.sign(xDifToCenter)), world.terrainHeightMap[int(x + np.sign(xDifToCenter))][z], z])
+            if zDifToCenter < 0:
+                # in upper Right
+                myCollisionFace.append([x - 1, world.terrainHeightMap[x - 1][z - 1], z - 1])
+                # down down
+                if (xDifToCenter == zDifToCenter or xDifToCenter / zDifToCenter <= 1) and zDifToCenter != 0:
+                    myCollisionFace.append([x, world.terrainHeightMap[x][z-1], z-1])
+                # Left
+                else:
+                    myCollisionFace.append([x-1, world.terrainHeightMap[x -1][z], z])
+            else:
+                #left top
+                myCollisionFace.append([x, world.terrainHeightMap[x][z + 1], z + 1])
+                myCollisionFace.append([x - 1, world.terrainHeightMap[x - 1][z], z])
 
         # there could be a collision
+        # i have found collisionFace and speed is stable
         if self.position[1] <= max([myCollisionFace[0][1], myCollisionFace[1][1], myCollisionFace[2][1]]):
+            # what i do:
+            # i calculate the normal of the collisionFace
+            # i calculate a normal from a second Face with 2 points from CollisionFace and one is my point
+            # i normalize both and calc a dot Product. DotProduct of two normalized vectors is 1 if they are parralel
+            # (menas here the same). Because position is changes per Frame we hae to add a Threshold
 
             # calculate normal of Face
             normal = np.cross(np.subtract(myCollisionFace[1], myCollisionFace[0]),
                               np.subtract(myCollisionFace[2], myCollisionFace[0]))
+
             normalizedNormale = normal / np.linalg.norm(normal)
+
+            # calculate Face from my Point to 2 points of collisonFace
+            pointFace = [[xReal, self.position[1], zReal], myCollisionFace[1], myCollisionFace[2]]
+
+            # normal of pointFace
+            pNormal = np.cross(np.subtract(pointFace[1], pointFace[0]),
+                              np.subtract(pointFace[2], pointFace[0]))
+            normalizedPNormale = pNormal / np.linalg.norm(pNormal)
 
             # calculate Line to my position from a trianlge Point
             line = np.subtract(realPosition, myCollisionFace[0])
@@ -186,11 +213,14 @@ class particle(object.object):
 
             # check if the distace to plane is less than Threshold
             # @todo: make distance related to speed
-            if distance <= collisionDistanceThreshold or self.position[1] <= min([myCollisionFace[0][1], myCollisionFace[1][1], myCollisionFace[2][1]]):
+            if (1-np.dot(normalizedNormale, normalizedPNormale)) < collisionDistanceThreshold:
                 # calc CollisionForce
                 collisionForce = self.calcForceCollisionWithTerrain(normalizedNormale)
                 # react on Collision
                 self.collisionResponse(collisionForce)
+
+            if (np.dot(normalizedNormale, normalizedPNormale)) <0:
+                exit("Particle is under the plate! Fix it")
 
         else:
             self.applyGravityAndAirDrag(passed)
@@ -206,26 +236,16 @@ class particle(object.object):
         passed = float(dt) / 1000
 
         # check and react on Terrain Collision
-        realPosition = self.checkCollisonWithterrain(passed, world)
+        self.checkCollisonWithterrain(passed, world)
 
-        if 1 <= realPosition[0] < world.gridResolution and 1 <= realPosition[2] < world.gridResolution:
-            # calc new Posititon
-            # new position is old position + speed in dependence to the time gone
-            self.position[0] += self.speed[0] * passed
-            self.position[1] += self.speed[1] * passed
-            self.position[2] += self.speed[2] * passed
+        # calc new Posititon
+        # new position is old position + speed in dependence to the time gone
+        self.position[0] += self.speed[0] * passed
+        self.position[1] += self.speed[1] * passed
+        self.position[2] += self.speed[2] * passed
 
-            # check Grid
-            self.checkGrid(preVoxel, world)
-
-        else:
-            print realPosition[0]
-            print realPosition[2]
-            # calc new with Wall
-            # new position is old position + speed in dependence to the time gone
-            self.position[0] = self.position[0]
-            self.position[1] += self.speed[1] * passed
-            self.position[2] = self.position[2]
+        # check Grid
+        self.checkGrid(preVoxel, world)
 
 
     # @todo: some function to combine two particles to one

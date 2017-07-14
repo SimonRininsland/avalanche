@@ -9,7 +9,7 @@ from OpenGL.GLUT import *
 import particle, object, world
 
 width, height = (1280, 720)
-flakeCount = 100
+flakeCount = 1
 
 
 # for the light
@@ -186,8 +186,8 @@ def init():
 
     # collision Spawn Flakes
     for i in xrange(flakeCount):
-        drawObjectsArray.append(particle.particle([uniform(-10.0, 10.0), uniform(30.0, 45.0),uniform(-10.0, 10.0)],
-        [0.0, 0.0, 0.0], uniform(.2, 1.0), 'resources/flake.obj', i+1, world, drawObjectsArray))
+        drawObjectsArray.append(particle.particle([0.2, 25.0, 0.2],
+        [0.0, 0.0, 0.0], uniform(.2, 1.0), 'resources/flake.obj', i, world, drawObjectsArray))
 
 
     # near spawn
