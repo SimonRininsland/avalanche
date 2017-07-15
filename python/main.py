@@ -36,39 +36,9 @@ camUpX, camUpY, camUpZ = (0., 0., 0.)
 
 jobs = []
 
-def display():
+def display(deltaT = 1000 / 60):
     # gets called if glut thinks the window has to be redrawed (by click, resize...)
     # init displaying
-    glLoadIdentity()
-
-    # MatrixMode for setup
-    glMatrixMode(GL_PROJECTION)
-
-    # set ShadeModel
-    glShadeModel(GL_SMOOTH)
-
-    # enable if front and backface is rendered
-    glEnable(GL_CULL_FACE)
-
-    # enable depth Test
-    glEnable(GL_DEPTH_TEST)
-
-    # setup light - 2 lights for testing
-    glLightfv(GL_LIGHT0, GL_POSITION, lightfv(-40, 200, 100, 0.0))
-    glLightfv(GL_LIGHT0, GL_AMBIENT, lightfv(0.2, 0.2, 0.2, 1.0))
-    glLightfv(GL_LIGHT0, GL_DIFFUSE, lightfv(0.5, 0.5, 0.5, 1.0))
-    glEnable(GL_LIGHT0)
-
-    # enable Lighting and Shadows
-    glEnable(GL_LIGHTING)
-
-    # enabling colored material
-    glEnable(GL_COLOR_MATERIAL)
-
-    # set MatrixMode for render
-    glMatrixMode(GL_MODELVIEW)
-
-def drawLoop(deltaT):
     global world, drawObjectsArray, particle
     # display all the stuff
     # which colors will be cleared (all here- without alpha) - every frame
@@ -90,12 +60,11 @@ def drawLoop(deltaT):
         if debug:
             debugDraw()
 
-
     # swap the Buffers on Projection Matrix
     glutSwapBuffers()
 
     # LoopCallback Recursive
-    glutTimerFunc(1000/60, drawLoop, 1000/60)
+    glutTimerFunc(1000 / 60, display, 1000 / 60)
 
 def debugDraw():
     # debug setup
@@ -185,12 +154,10 @@ def keyFunc(key, x, y):
 
     print camCenterY
 
-
 def mouseFunc(key, mode, x, y):
     if mode == 0 and key == 0:
         print("click")
     print x,y
-
 
 def init():
     global world, drawObjectsArray
@@ -239,8 +206,32 @@ def init():
     # set MatrixMode for render
     glMatrixMode(GL_MODELVIEW)
 
-    # to have a callback function we need to add a display function
-    glutDisplayFunc(display)
+    # MatrixMode for setup
+    glMatrixMode(GL_PROJECTION)
+
+    # set ShadeModel
+    glShadeModel(GL_SMOOTH)
+
+    # enable if front and backface is rendered
+    glEnable(GL_CULL_FACE)
+
+    # enable depth Test
+    glEnable(GL_DEPTH_TEST)
+
+    # setup light - 2 lights for testing
+    glLightfv(GL_LIGHT0, GL_POSITION, lightfv(-40, 200, 100, 0.0))
+    glLightfv(GL_LIGHT0, GL_AMBIENT, lightfv(0.2, 0.2, 0.2, 1.0))
+    glLightfv(GL_LIGHT0, GL_DIFFUSE, lightfv(0.5, 0.5, 0.5, 1.0))
+    glEnable(GL_LIGHT0)
+
+    # enable Lighting and Shadows
+    glEnable(GL_LIGHTING)
+
+    # enabling colored material
+    glEnable(GL_COLOR_MATERIAL)
+
+    # set MatrixMode for render
+    glMatrixMode(GL_MODELVIEW)
 
     # our world model
     world = world.world()
@@ -273,8 +264,9 @@ def init():
     # callback for mousepress
     glutMouseFunc(mouseFunc)
 
+    glutDisplayFunc(display)
     # Timer function for the 60 fps draw callback
-    glutTimerFunc(1000/60, drawLoop, 1000/60)
+    glutTimerFunc(1000/60, display, 1000/60)
 
     # glutMainLoop enters the GLUT event processing loop. This routine should be called at most once in a GLUT program.
     # Once called, this routine will never return. It will call as necessary any callbacks that have been registered.
