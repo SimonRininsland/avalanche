@@ -5,7 +5,6 @@ from OpenGL.GL import *
 # used: https://github.com/greenmoss/PyWavefront
 import pywavefront
 import particle
-import numpy as np
 
 class object():
     def __init__(self, position, obj, world):
@@ -23,11 +22,23 @@ class object():
         pass
 
     def draw(self, deltaT, world):
-        self.increment(deltaT, world)
-        glTranslatef(self.position[0], self.position[1], self.position[2])
-        #glScalef(self.mass,self.mass,self.mass)
-        self.obj.draw()
-        glTranslatef(-self.position[0], -self.position[1], -self.position[2])
+        if isinstance(self, particle.particle):
+            self.increment(deltaT, world)
+            glTranslatef(self.position[0], self.position[1], self.position[2])
+            #glScalef(self.mass,self.mass,self.mass)
+            self.obj.draw()
+            glTranslatef(-self.position[0], -self.position[1], -self.position[2])
+
+            for self.emitterFlake in self.emitterFlakes:
+                glTranslatef(self.position[0] + self.emitterFlake[0],
+                             self.position[1] + self.emitterFlake[1],
+                             self.position[2] + self.emitterFlake[2])
+                self.obj.draw()
+                glTranslatef(-(self.position[0] + self.emitterFlake[0]),
+                             -(self.position[1] + self.emitterFlake[1]),
+                             -(self.position[2] + self.emitterFlake[2]))
+        else:
+            self.obj.draw()
 
 
     def getHeightMap(self, world):

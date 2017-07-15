@@ -1,19 +1,23 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 from random import uniform
-
+import multiprocessing
 from OpenGL.GL import *
 from OpenGL.GLU import *
 from OpenGL.GLUT import *
 
 import particle, object, world
-import numpy as np
 
 width, height = (1280, 720)
-flakeCount = 1
+
+#my originFlake Number
+emitterCount = 20
+
+# my EmitterPer Flake Numer
+flakesPerEmitter = 50
 
 #enable DebugMode
-debug = True
+debug = False
 
 # for the light
 lightfv = ctypes.c_float * 4
@@ -30,6 +34,7 @@ camEyeX, camEyeY, camEyeZ = (0., 0., 0.)
 camCenterX, camCenterY, camCenterZ = (1., 1., 1.)
 camUpX, camUpY, camUpZ = (0., 0., 0.)
 
+jobs = []
 
 def display():
     # gets called if glut thinks the window has to be redrawed (by click, resize...)
@@ -94,7 +99,9 @@ def drawLoop(deltaT):
 
 def debugDraw():
     # debug setup
-    glPointSize(10.0)
+    size = 5.0
+    glPointSize(size)
+
     if True:
         # My Position in Green
         glColor3f(0., 1., 0.)
@@ -116,6 +123,27 @@ def debugDraw():
                            drawObjectsArray[index].voxel[2][0] - world.worldSize)
                 glEnd()
 
+    if True:
+        # My Voxel in Yellow
+        glColor3f(1., 1., 0.)
+        for index in xrange(len(drawObjectsArray)):
+            if isinstance(drawObjectsArray[index], particle.particle):
+                glBegin(GL_POINTS)
+
+                # we have to recalculate to get it in view Coordinates
+                glVertex3f(drawObjectsArray[index].myCollisionFace[0][0] - world.worldSize,
+                           drawObjectsArray[index].myCollisionFace[0][1],
+                           drawObjectsArray[index].myCollisionFace[0][2] - world.worldSize)
+
+                glVertex3f(drawObjectsArray[index].myCollisionFace[1][0] - world.worldSize,
+                           drawObjectsArray[index].myCollisionFace[1][1],
+                           drawObjectsArray[index].myCollisionFace[1][2] - world.worldSize)
+
+                glVertex3f(drawObjectsArray[index].myCollisionFace[2][0] - world.worldSize,
+                           drawObjectsArray[index].myCollisionFace[2][1],
+                           drawObjectsArray[index].myCollisionFace[2][2] - world.worldSize)
+                glEnd()
+
     if False:
         # Objects in World array in Blue
         glColor3f(0., 0., 1.)
@@ -129,7 +157,6 @@ def debugDraw():
                                    indexY,
                                    indexZ - world.worldSize)
                         glEnd()
-
 
     glColor3f(1., 1., 1.)
 
@@ -196,7 +223,7 @@ def init():
     '''
 
     # view far away
-    gluLookAt(20, 30, 5,
+    gluLookAt(20, 50, 5,
               0, 20, 0,
               0, 1, 0)
 
@@ -229,9 +256,9 @@ def init():
     #     [0.0, 0.0, 0.0], uniform(.2, 1.0), 'resources/flake.obj', i, world, drawObjectsArray))
 
     # collision Spawn Flakes
-    for i in xrange(flakeCount):
-        drawObjectsArray.append(particle.particle([0.2, 25.0, 0.2],
-        [0.0, 0.0, 0.0], uniform(.2, 1.0), 'resources/flake.obj', i, world, drawObjectsArray))
+    for i in xrange(emitterCount):
+        drawObjectsArray.append(particle.particle([uniform(-10.0, 10.0), uniform(28.0, 45.0), uniform(-10.0, 10.0)],
+        [0.0, 0.0, 0.0], uniform(.2, 1.0), 'resources/flake.obj', i, world, drawObjectsArray, flakesPerEmitter))
 
 
     # near spawn

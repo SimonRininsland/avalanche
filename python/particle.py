@@ -6,6 +6,7 @@ import math
 import pywavefront
 import object
 import numpy as np
+from random import uniform
 
 # The Gravitation
 gravitation = [0, -9.81, 0]
@@ -15,7 +16,7 @@ collisionDistanceThreshold = 0.01
 
 
 class particle(object.object):
-    def __init__(self, position, speed, mass, obj, index, world, drawObjectsArray):
+    def __init__(self, position, speed, mass, obj, index, world, drawObjectsArray, flakesPerEmitter):
         # an own index
         self.index = index
 
@@ -26,13 +27,13 @@ class particle(object.object):
         self.speed = speed
 
         # and an own elasticity 1:perfect bounce 0: zero bounce 0.7
-        self.elasticity = 0.9
+        self.elasticity = 0.5
 
         # and an own mass
         self.mass = mass
 
         # and an air drag 0.9
-        self.airDrag = 0.8
+        self.airDrag = 0.9
 
         # my obj
         self.obj = pywavefront.Wavefront(obj)
@@ -44,6 +45,16 @@ class particle(object.object):
 
         # allObjects
         self.drawObjectsArray = drawObjectsArray
+
+        # my Collision Face with Terrain
+        self.myCollisionFace = [[0,0,0],[0,0,0],[0,0,0]]
+
+        # add some Falke Emitter positions
+        self.emitterFlakes = []
+
+        while flakesPerEmitter > 0:
+            self.emitterFlakes.append([uniform(-2.0, 2.0), uniform(-2.0, 2.0), uniform(-2.0, 2.0)])
+            flakesPerEmitter -= 1
 
     def applyGravityAndAirDrag(self, dt):
         # apply the Force
@@ -116,14 +127,12 @@ class particle(object.object):
         obj.collisionResponse((vn1 + vt2))
 
 
-    def calcForceCollisionWithTerrain(self, normalizedPNormale):
-        # map NormalVector on myVector
-        mapedVector = np.dot(self.speed, normalizedPNormale)/np.linalg.norm(normalizedPNormale)
+    def calcForceCollisionWithTerrain(self, normalizedNormale):
+        mapedVector = np.dot(self.speed, normalizedNormale)/np.linalg.norm(normalizedNormale)
 
         # calculate my output Vector
-        outputVector = np.add(np.subtract((2 * mapedVector * normalizedPNormale), self.speed), self.position)
-
-        return outputVector
+        outputVector = np.add(np.subtract((2 * mapedVector * normalizedNormale), self.speed), [self.position[0], self.position[1],self.position[2]])
+        return outputVector/np.linalg.norm(outputVector) * np.linalg.norm(self.speed)
 
     def checkCollisonWithterrain(self, passed, world):
         # collision with heightmap
@@ -139,41 +148,41 @@ class particle(object.object):
         zDifToCenter = zReal - z
 
         # identify Face collided
-        myCollisionFace = [[x, world.terrainHeightMap[x][z], z]]
+        self.myCollisionFace = [[x, world.terrainHeightMap[x][z], z]]
 
         # in right
         if xDifToCenter >= 0:
             if zDifToCenter >= 0:
                 # in upper Right
-                myCollisionFace.append([x + 1, world.terrainHeightMap[x + 1][z + 1], z + 1])
+                self.myCollisionFace.append([x + 1, world.terrainHeightMap[x + 1][z + 1], z + 1])
                 # to exlude 0/0
                 if (xDifToCenter == zDifToCenter or xDifToCenter / zDifToCenter <= 1) and zDifToCenter != 0:
-                    myCollisionFace.append([x, world.terrainHeightMap[x][z + 1], z + 1])
+                    self.myCollisionFace.append([x, world.terrainHeightMap[x][z + 1], z + 1])
                 # Right
                 else:
-                    myCollisionFace.append([x + 1, world.terrainHeightMap[x + 1][z], z])
+                    self.myCollisionFace.append([x + 1, world.terrainHeightMap[x + 1][z], z])
             else:
                 #down
-                myCollisionFace.append([x, world.terrainHeightMap[x][z - 1], z - 1])
-                myCollisionFace.append([x + 1, world.terrainHeightMap[x + 1][z], z])
+                self.myCollisionFace.append([x, world.terrainHeightMap[x][z - 1], z - 1])
+                self.myCollisionFace.append([x + 1, world.terrainHeightMap[x + 1][z], z])
         else:
             if zDifToCenter < 0:
                 # in upper Right
-                myCollisionFace.append([x - 1, world.terrainHeightMap[x - 1][z - 1], z - 1])
+                self.myCollisionFace.append([x - 1, world.terrainHeightMap[x - 1][z - 1], z - 1])
                 # down down
                 if (xDifToCenter == zDifToCenter or xDifToCenter / zDifToCenter <= 1) and zDifToCenter != 0:
-                    myCollisionFace.append([x, world.terrainHeightMap[x][z-1], z-1])
+                    self.myCollisionFace.append([x, world.terrainHeightMap[x][z-1], z-1])
                 # Left
                 else:
-                    myCollisionFace.append([x-1, world.terrainHeightMap[x -1][z], z])
+                    self.myCollisionFace.append([x-1, world.terrainHeightMap[x -1][z], z])
             else:
                 #left top
-                myCollisionFace.append([x, world.terrainHeightMap[x][z + 1], z + 1])
-                myCollisionFace.append([x - 1, world.terrainHeightMap[x - 1][z], z])
+                self.myCollisionFace.append([x, world.terrainHeightMap[x][z + 1], z + 1])
+                self.myCollisionFace.append([x - 1, world.terrainHeightMap[x - 1][z], z])
 
         # there could be a collision
         # i have found collisionFace and speed is stable
-        if self.position[1] + self.getBound()[1] <= max([myCollisionFace[0][1], myCollisionFace[1][1], myCollisionFace[2][1]]):
+        if self.position[1] <= max([self.myCollisionFace[0][1], self.myCollisionFace[1][1], self.myCollisionFace[2][1]]):
             # what i do:
             # i calculate the normal of the collisionFace
             # i calculate a normal from a second Face with 2 points from CollisionFace and one is my point
@@ -181,13 +190,13 @@ class particle(object.object):
             # (means here the same). Because position is changes per Frame we hae to add a Threshold
 
             # calculate normal of Face
-            normal = np.cross(np.subtract(myCollisionFace[1], myCollisionFace[0]),
-                              np.subtract(myCollisionFace[2], myCollisionFace[0]))
+            normal = np.cross(np.subtract(self.myCollisionFace[1], self.myCollisionFace[0]),
+                              np.subtract(self.myCollisionFace[2], self.myCollisionFace[0]))
 
             normalizedNormale = normal / np.linalg.norm(normal)
 
             # calculate Face from my Point to 2 points of collisonFace
-            pointFace = [realPosition, myCollisionFace[1], myCollisionFace[2]]
+            pointFace = [realPosition, self.myCollisionFace[1], self.myCollisionFace[2]]
 
             # normal of pointFace
             pNormal = np.cross(np.subtract(pointFace[1], pointFace[0]),
@@ -198,12 +207,13 @@ class particle(object.object):
             # @todo: make distance related to speed
             if (1-np.dot(normalizedNormale, normalizedPNormale)) < collisionDistanceThreshold:
                 # calc CollisionForce
-                collisionForce = self.calcForceCollisionWithTerrain(normalizedPNormale)
+                collisionForce = self.calcForceCollisionWithTerrain(normalizedNormale)
                 # react on Collision
                 self.collisionResponse(collisionForce)
 
             if (np.dot(normalizedNormale, normalizedPNormale)) <0:
-                exit("Particle is under the plate! Fix it")
+                print("Particle is under the plate! Fix it")
+                self.speed = np.negative(self.speed)
 
         else:
             self.applyGravityAndAirDrag(passed)
@@ -256,9 +266,9 @@ class particle(object.object):
     def collisionResponse(self, collisionForce):
         # fullSpeed has to be hold by
         # the collisionForce impacts the different Axis
-        self.speed[0] += collisionForce[0] * self.elasticity
-        self.speed[1] += collisionForce[1] * self.elasticity
-        self.speed[2] += collisionForce[2] * self.elasticity
+        self.speed[0] = collisionForce[0] * self.elasticity
+        self.speed[1] = collisionForce[1] * self.elasticity
+        self.speed[2] = collisionForce[2] * self.elasticity
 
     def collisionDetection(self, obj):
         tmpP = self.getBound()
