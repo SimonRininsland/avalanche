@@ -7,10 +7,13 @@ from OpenGL.GLU import *
 from OpenGL.GLUT import *
 
 import particle, object, world
+import numpy as np
 
 width, height = (1280, 720)
 flakeCount = 1
 
+#enable DebugMode
+debug = True
 
 # for the light
 lightfv = ctypes.c_float * 4
@@ -61,7 +64,7 @@ def display():
     glMatrixMode(GL_MODELVIEW)
 
 def drawLoop(deltaT):
-    global world, drawObjectsArray
+    global world, drawObjectsArray, particle
     # display all the stuff
     # which colors will be cleared (all here- without alpha) - every frame
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
@@ -75,12 +78,12 @@ def drawLoop(deltaT):
     # draw all my objects
     for index in xrange(len(drawObjectsArray)):
 
-        ''''# check for collision
-        for index2 in range(index+1, len(drawObjectsArray)):
-                    drawObjectsArray[index].collisionDetection(drawObjectsArray[index2])'''
-
         # draw my object
         drawObjectsArray[index].draw(deltaT, world)
+
+        # Debug Mode Option
+        if debug:
+            debugDraw()
 
 
     # swap the Buffers on Projection Matrix
@@ -88,6 +91,47 @@ def drawLoop(deltaT):
 
     # LoopCallback Recursive
     glutTimerFunc(1000/60, drawLoop, 1000/60)
+
+def debugDraw():
+    # debug setup
+    glPointSize(10.0)
+    if True:
+        # My Position in Green
+        glColor3f(0., 1., 0.)
+        for index in xrange(len(drawObjectsArray)):
+            glBegin(GL_POINTS)
+            glVertex3f(drawObjectsArray[index].position[0], drawObjectsArray[index].position[1],
+                       drawObjectsArray[index].position[2])
+            glEnd()
+
+    if True:
+        # My Voxel in Red
+        glColor3f(1., 0., 0.)
+        for index in xrange(len(drawObjectsArray)):
+            if isinstance(drawObjectsArray[index], particle.particle):
+                glBegin(GL_POINTS)
+                # we have to recalculate to get it in view Coordinates
+                glVertex3f(drawObjectsArray[index].voxel[0][0] - world.worldSize,
+                           drawObjectsArray[index].voxel[1][0],
+                           drawObjectsArray[index].voxel[2][0] - world.worldSize)
+                glEnd()
+
+    if False:
+        # Objects in World array in Blue
+        glColor3f(0., 0., 1.)
+        for indexX, worldGridX in enumerate(world.grid):
+            for indexY, worldGridY in enumerate(worldGridX):
+                for indexZ, worldGridZ in enumerate(worldGridY):
+                    if worldGridZ != -1:
+                        glBegin(GL_POINTS)
+                        # we have to recalculate to get it in view Coordinates
+                        glVertex3f(indexX - world.worldSize,
+                                   indexY,
+                                   indexZ - world.worldSize)
+                        glEnd()
+
+
+    glColor3f(1., 1., 1.)
 
 def keyFunc(key, x, y):
     global camEyeX, camEyeY, camEyeZ
@@ -152,7 +196,7 @@ def init():
     '''
 
     # view far away
-    gluLookAt(25, 40, 5,
+    gluLookAt(20, 30, 5,
               0, 20, 0,
               0, 1, 0)
 

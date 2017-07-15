@@ -46,12 +46,13 @@ class object():
                 if height <= 0:
                     # search for Zeros (comes in the EndPoints of the Terrain ) and correct them
                     if z == 0:
-                        world.terrainHeightMap[x][z] = ((heights[z + 1] + heights[z + 2]) / 2)
+                        # if i'm at the endpoints set heigth to hight to react
+                        world.terrainHeightMap[x][z] = 9999
                     elif z >= (len(world.terrainHeightMap)-1):
-                        world.terrainHeightMap[x][z] = ((heights[z - 1] + heights[z - 2]) / 2)
+                        # if i'm at the endpoints set heigth to hight to react
+                        world.terrainHeightMap[x][z] = 9999
                     else:
                         world.terrainHeightMap[x][z] = ((heights[z - 1] + heights[z + 1]) / 2)
-
 
     def getBound(self):
         xs = [v[0] for v in self.obj.vertx]

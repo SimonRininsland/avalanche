@@ -6,13 +6,13 @@ import math
 import pywavefront
 import object
 import numpy as np
-from math import atan2, sqrt, atan, pi, degrees
 
 # The Gravitation
 gravitation = [0, -9.81, 0]
 
 # check if the distace to plane is less than Threshold
 collisionDistanceThreshold = 0.01
+
 
 class particle(object.object):
     def __init__(self, position, speed, mass, obj, index, world, drawObjectsArray):
@@ -37,13 +37,10 @@ class particle(object.object):
         # my obj
         self.obj = pywavefront.Wavefront(obj)
 
-        # my VoxelIndex
-        self.voxelIndex = (int(round(self.position[0])) + world.worldSize,
-                           int(round(self.position[1])) + world.worldSize,
-                           int(round(self.position[2])) + world.worldSize)
-
         # my voxel
-        self.voxel = [self.voxelIndex]
+        self.voxel = [[int(round(self.position[0])) + world.worldSize],
+                      [int(round(self.position[1])) + world.worldSize],
+                      [int(round(self.position[2])) + world.worldSize]]
 
         # allObjects
         self.drawObjectsArray = drawObjectsArray
@@ -61,7 +58,7 @@ class particle(object.object):
         # check new Position Voxel
         # new Voxel
         self.voxel = [[int(round(self.position[0])) + world.worldSize],
-                      [int(round(self.position[1])) + world.worldSize],
+                      [int(round(self.position[1]))],
                       [int(round(self.position[2])) + world.worldSize]]
 
         # if voxel is empty
@@ -119,12 +116,12 @@ class particle(object.object):
         obj.collisionResponse((vn1 + vt2))
 
 
-    def calcForceCollisionWithTerrain(self, normalizedNormale):
+    def calcForceCollisionWithTerrain(self, normalizedPNormale):
         # map NormalVector on myVector
-        mapedVector = np.dot(self.speed, normalizedNormale)/np.linalg.norm(normalizedNormale)
+        mapedVector = np.dot(self.speed, normalizedPNormale)/np.linalg.norm(normalizedPNormale)
 
         # calculate my output Vector
-        outputVector = np.add(np.subtract((2 * mapedVector * normalizedNormale), self.speed), self.position)
+        outputVector = np.add(np.subtract((2 * mapedVector * normalizedPNormale), self.speed), self.position)
 
         return outputVector
 
@@ -176,7 +173,7 @@ class particle(object.object):
 
         # there could be a collision
         # i have found collisionFace and speed is stable
-        if self.position[1] <= max([myCollisionFace[0][1], myCollisionFace[1][1], myCollisionFace[2][1]]):
+        if self.position[1] + self.getBound()[1] <= max([myCollisionFace[0][1], myCollisionFace[1][1], myCollisionFace[2][1]]):
             # what i do:
             # i calculate the normal of the collisionFace
             # i calculate a normal from a second Face with 2 points from CollisionFace and one is my point
@@ -190,27 +187,18 @@ class particle(object.object):
             normalizedNormale = normal / np.linalg.norm(normal)
 
             # calculate Face from my Point to 2 points of collisonFace
-            pointFace = [[xReal, self.position[1], zReal], myCollisionFace[1], myCollisionFace[2]]
+            pointFace = [realPosition, myCollisionFace[1], myCollisionFace[2]]
 
             # normal of pointFace
             pNormal = np.cross(np.subtract(pointFace[1], pointFace[0]),
                               np.subtract(pointFace[2], pointFace[0]))
             normalizedPNormale = pNormal / np.linalg.norm(pNormal)
 
-            # calculate Line to my position from a trianlge Point
-            line = np.subtract(realPosition, myCollisionFace[0])
-
-            # vector from trianlge to point
-            vecTriToP = -normalizedNormale * np.dot(line, normalizedNormale)
-
-            # distance between position and Terrain
-            distance = np.linalg.norm(vecTriToP)
-
             # check if the distace to plane is less than Threshold
             # @todo: make distance related to speed
             if (1-np.dot(normalizedNormale, normalizedPNormale)) < collisionDistanceThreshold:
                 # calc CollisionForce
-                collisionForce = self.calcForceCollisionWithTerrain(normalizedNormale)
+                collisionForce = self.calcForceCollisionWithTerrain(normalizedPNormale)
                 # react on Collision
                 self.collisionResponse(collisionForce)
 
@@ -271,7 +259,6 @@ class particle(object.object):
         self.speed[0] += collisionForce[0] * self.elasticity
         self.speed[1] += collisionForce[1] * self.elasticity
         self.speed[2] += collisionForce[2] * self.elasticity
-
 
     def collisionDetection(self, obj):
         tmpP = self.getBound()

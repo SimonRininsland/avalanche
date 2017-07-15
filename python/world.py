@@ -21,22 +21,6 @@ class world(object):
         # -1 means is empty
         self.grid.fill(-1)
 
-        i = 0
-        while i < self.gridResolution:
-            self.grid[i][i][0] = 99999
-            self.grid[0][i][i] = 99999
-            self.grid[i][i][i] = 99999
-            self.grid[i][0][0] = 99999
-            self.grid[0][i][0] = 99999
-            self.grid[0][0][i] = 99999
-            self.grid[i][i][self.gridResolution-1] = 99999
-            self.grid[self.gridResolution-1][i][i] = 99999
-            self.grid[i][i][i] = 99999
-            self.grid[i][self.gridResolution-1][self.gridResolution-1] = 99999
-            self.grid[self.gridResolution-1][i][self.gridResolution-1] = 99999
-            self.grid[self.gridResolution-1][self.gridResolution-1][i] = 99999
-            i += 1
-
 
     def getGridResolution(self):
         return self.gridResolution
