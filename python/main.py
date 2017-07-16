@@ -11,13 +11,13 @@ import particle, object, world
 width, height = (1280, 720)
 
 #my originFlake Number
-emitterCount = 1
+emitterCount = 100
 
 # my EmitterPer Flake Numer
-flakesPerEmitter = 0
+flakesPerEmitter = 10
 
 #enable DebugMode
-debug = True
+debug = False
 
 # for the light
 lightfv = ctypes.c_float * 4
@@ -240,7 +240,7 @@ def init():
     '''
 
     # view far away
-    gluLookAt(50, 50, 0,
+    gluLookAt(20, 35, -80,
               0, 20, 0,
               0, 1, 0)
 
@@ -298,7 +298,7 @@ def init():
 
     # collision Spawn Flakes
     for i in xrange(emitterCount):
-        drawObjectsArray.append(particle.particle([uniform(-1.0, 1.0), uniform(28.0, 45.0), uniform(-1.0, 1.0)],
+        drawObjectsArray.append(particle.particle([uniform(-10.0, 10.0), uniform(28.0, 45.0), uniform(-10.0, 10.0)],
         [0.0, 0.0, 0.0], uniform(.2, 1.0), 'resources/flake.obj', i, world, drawObjectsArray, flakesPerEmitter))
 
 
