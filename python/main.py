@@ -11,13 +11,13 @@ import particle, object, world
 width, height = (1280, 720)
 
 #my originFlake Number
-emitterCount = 20
+emitterCount = 1
 
 # my EmitterPer Flake Numer
-flakesPerEmitter = 50
+flakesPerEmitter = 0
 
 #enable DebugMode
-debug = False
+debug = True
 
 # for the light
 lightfv = ctypes.c_float * 4
@@ -34,8 +34,6 @@ camEyeX, camEyeY, camEyeZ = (0., 0., 0.)
 camCenterX, camCenterY, camCenterZ = (1., 1., 1.)
 camUpX, camUpY, camUpZ = (0., 0., 0.)
 
-jobs = []
-
 def display(deltaT = 1000 / 60):
     # gets called if glut thinks the window has to be redrawed (by click, resize...)
     # init displaying
@@ -43,10 +41,6 @@ def display(deltaT = 1000 / 60):
     # display all the stuff
     # which colors will be cleared (all here- without alpha) - every frame
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
-
-    # gluLookAt(camEyeX, camEyeY, camEyeZ,
-    #           camCenterX, camCenterY, camCenterZ,
-    #           camUpX, camUpY, camUpZ)
 
     glLoadIdentity()
 
@@ -68,7 +62,7 @@ def display(deltaT = 1000 / 60):
 
 def debugDraw():
     # debug setup
-    size = 5.0
+    size = 10.0
     glPointSize(size)
 
     if True:
@@ -190,7 +184,7 @@ def init():
     '''
 
     # view far away
-    gluLookAt(20, 50, 5,
+    gluLookAt(50, 50, 0,
               0, 20, 0,
               0, 1, 0)
 
@@ -237,7 +231,7 @@ def init():
     world = world.world()
 
     # load my plane
-    drawObjectsArray.append(object.object([0,0,0], 'resources/terrain.obj', world))
+    drawObjectsArray.append(object.object([0,0,0], 'resources/terrain_smooth_flat.obj', world))
 
     # setup one particle position, velocity, mass, obj
 
@@ -248,7 +242,7 @@ def init():
 
     # collision Spawn Flakes
     for i in xrange(emitterCount):
-        drawObjectsArray.append(particle.particle([uniform(-10.0, 10.0), uniform(28.0, 45.0), uniform(-10.0, 10.0)],
+        drawObjectsArray.append(particle.particle([uniform(-1.0, 1.0), uniform(28.0, 45.0), uniform(-1.0, 1.0)],
         [0.0, 0.0, 0.0], uniform(.2, 1.0), 'resources/flake.obj', i, world, drawObjectsArray, flakesPerEmitter))
 
 

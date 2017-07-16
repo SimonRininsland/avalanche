@@ -27,13 +27,13 @@ class particle(object.object):
         self.speed = speed
 
         # and an own elasticity 1:perfect bounce 0: zero bounce 0.7
-        self.elasticity = 0.5
+        self.elasticity = 0.8
 
         # and an own mass
         self.mass = mass
 
         # and an air drag 0.9
-        self.airDrag = 0.9
+        self.airDrag = 0.6
 
         # my obj
         self.obj = pywavefront.Wavefront(obj)
@@ -130,6 +130,10 @@ class particle(object.object):
     def calcForceCollisionWithTerrain(self, normalizedNormale):
         mapedVector = np.dot(self.speed, normalizedNormale)/np.linalg.norm(normalizedNormale)
 
+        print self.myCollisionFace
+        print normalizedNormale
+        print self.position
+        print mapedVector
         # calculate my output Vector
         outputVector = np.add(np.subtract((2 * mapedVector * normalizedNormale), self.speed), [self.position[0], self.position[1],self.position[2]])
         return outputVector/np.linalg.norm(outputVector) * np.linalg.norm(self.speed)
@@ -213,7 +217,7 @@ class particle(object.object):
 
             if (np.dot(normalizedNormale, normalizedPNormale)) <0:
                 print("Particle is under the plate! Fix it")
-                self.speed = np.negative(self.speed)
+                self.speed = np.negative(self.speed) * self.elasticity
 
         else:
             self.applyGravityAndAirDrag(passed)
