@@ -26,6 +26,16 @@ lightfv = ctypes.c_float * 4
 ESCAPE = '\033'
 SPACEBAR = '\040'
 
+# camera variables
+ox = 0
+oy = 0
+buttonState = 0
+camera_trans = [0, -2, -25]
+camera_rot = [0, 0, 0]
+camera_trans_lag = [0, -2, -25]
+camera_rot_lag = [0, 0, 0]
+inertia = 0.1
+
 # my object array
 drawObjectsArray = []
 
@@ -43,6 +53,14 @@ def display(deltaT = 1000 / 60):
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
 
     glLoadIdentity()
+
+
+    for c in xrange(3):
+        camera_trans_lag[c] += (camera_trans[c] - camera_trans_lag[c]) * inertia;
+        camera_rot_lag[c] += (camera_rot[c] - camera_rot_lag[c]) * inertia;
+    glTranslatef(camera_trans_lag[0], camera_trans_lag[1], camera_trans_lag[2])
+    glRotatef(camera_rot_lag[0], 1.0, 0.0, 0.0)
+    glRotatef(camera_rot_lag[1], 0.0, 1.0, 0.0)
 
     # draw all my objects
     for index in xrange(len(drawObjectsArray)):
@@ -148,10 +166,48 @@ def keyFunc(key, x, y):
 
     print camCenterY
 
-def mouseFunc(key, mode, x, y):
-    if mode == 0 and key == 0:
-        print("click")
-    print x,y
+def mouse(button, state, x, y):
+    global buttonState
+    global ox, oy
+    if (state == GLUT_DOWN):
+        buttonState |= 1 << button
+    elif (state == GLUT_UP):
+        buttonState = 0
+
+    mods = glutGetModifiers()
+    if (mods & GLUT_ACTIVE_SHIFT):
+        buttonState = 2
+    elif (mods & GLUT_ACTIVE_CTRL):
+        buttonState = 3
+
+    ox = x
+    oy = y
+
+    glutPostRedisplay()
+
+def motion(x, y):
+    global buttonState
+    global ox, oy
+    global camera_trans
+    global camera_rot
+    dx = x - ox
+    dy = y - oy
+
+    if buttonState == 3:
+        # left+middle = zoom
+        camera_trans[2] += (dy / 100.0) * 0.5 * abs(camera_trans[2])
+    elif buttonState & 2:
+        # middle = translate
+        camera_trans[0] += dx / 100.0
+        camera_trans[1] -= dy / 100.0
+    elif buttonState & 1:
+        # left = rotate
+        camera_rot[0] += dy / 5.0
+        camera_rot[1] += dx / 5.0
+
+    ox = x
+    oy = y
+    glutPostRedisplay()
 
 def init():
     global world, drawObjectsArray
@@ -256,7 +312,10 @@ def init():
     glutKeyboardFunc(keyFunc)
 
     # callback for mousepress
-    glutMouseFunc(mouseFunc)
+    glutMouseFunc(mouse)
+
+    # Motion Func
+    glutMotionFunc(motion)
 
     glutDisplayFunc(display)
     # Timer function for the 60 fps draw callback
