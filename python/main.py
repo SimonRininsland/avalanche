@@ -14,7 +14,7 @@ width, height = (1280, 720)
 emitterCount = 100
 
 # my EmitterPer Flake Numer
-flakesPerEmitter = 10
+flakesPerEmitter = 1
 
 #enable DebugMode
 debug = False
@@ -92,7 +92,7 @@ def debugDraw():
                        drawObjectsArray[index].position[2])
             glEnd()
 
-    if True:
+    if False:
         # My Voxel in Red
         glColor3f(1., 0., 0.)
         for index in xrange(len(drawObjectsArray)):
@@ -105,7 +105,7 @@ def debugDraw():
                 glEnd()
 
     if True:
-        # My Voxel in Yellow
+        # My CollisionFace in Yellow
         glColor3f(1., 1., 0.)
         for index in xrange(len(drawObjectsArray)):
             if isinstance(drawObjectsArray[index], particle.particle):
@@ -138,6 +138,56 @@ def debugDraw():
                                    indexY,
                                    indexZ - world.worldSize)
                         glEnd()
+
+    if False:
+        # Objects in World array in Green
+        glColor3f(0., 1., 0.)
+
+        glBegin(GL_LINES)
+        index = -64
+        while index <= 64:
+            glVertex3f(index, 0, -64)
+            glVertex3f(index, 0, 64)
+
+            glVertex3f(-64, 0, index)
+            glVertex3f(64, 0, index)
+            index += 1
+
+        glEnd()
+
+        glBegin(GL_LINES)
+        indexX = -64
+        indexY = -64
+        indexZ = -64
+        while indexX <= 64:
+            while indexY <= 64:
+                while indexZ <= 64:
+                    glVertex3f(indexY, -64, indexX)
+                    glVertex3f(indexY, 64, indexX)
+
+                    glVertex3f(-64, indexX, indexY)
+                    glVertex3f(64, indexX, indexY)
+                    indexZ+= 4
+                indexZ = -64
+                indexY += 4
+            indexZ = -64
+            indexY = -64
+            indexX += 4
+
+        glEnd()
+
+        glBegin(GL_LINES)
+        index = -64
+        while index <= 64:
+            glVertex3f(0, index, -64)
+            glVertex3f(0, index, 64)
+
+            glVertex3f(0, -64, index)
+            glVertex3f(0, 64, index)
+            index += 1
+
+        glEnd()
+
 
     glColor3f(1., 1., 1.)
 
@@ -240,7 +290,7 @@ def init():
     '''
 
     # view far away
-    gluLookAt(20, 35, -80,
+    gluLookAt(0, 35, -60,
               0, 20, 0,
               0, 1, 0)
 

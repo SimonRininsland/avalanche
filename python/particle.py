@@ -212,7 +212,9 @@ class particle(object.object):
 
             if (np.dot(normalizedNormale, normalizedPNormale)) <0:
                 print("Particle is under the plate! Fix it")
-                self.speed = np.negative(self.speed) * self.elasticity
+                collisionForce = self.calcForceCollisionWithTerrain(normalizedNormale)
+                # react on Collision
+                self.collisionResponse(collisionForce)
 
         else:
             self.applyGravityAndAirDrag(passed)
