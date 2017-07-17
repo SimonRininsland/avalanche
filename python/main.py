@@ -11,10 +11,10 @@ import particle, object, world
 width, height = (1280, 720)
 
 #my originFlake Number
-emitterCount = 100
+emitterCount = 10
 
 # my EmitterPer Flake Numer
-flakesPerEmitter = 1
+flakesPerEmitter = 0
 
 #enable DebugMode
 debug = False
@@ -105,8 +105,8 @@ def debugDraw():
                 glEnd()
 
     if True:
-        # My CollisionFace in Yellow
-        glColor3f(1., 1., 0.)
+        # My CollisionFace in Red
+        glColor3f(1., 0., 0.)
         for index in xrange(len(drawObjectsArray)):
             if isinstance(drawObjectsArray[index], particle.particle):
                 glBegin(GL_POINTS)
@@ -124,6 +124,20 @@ def debugDraw():
                            drawObjectsArray[index].myCollisionFace[2][1],
                            drawObjectsArray[index].myCollisionFace[2][2] - world.worldSize)
                 glEnd()
+
+    if False:
+        # TerrainHeightmap
+        glColor3f(1., 1., 0.)
+        glBegin(GL_POINTS)
+        for indexX, map in enumerate(world.terrainHeightMap):
+            # we have to recalculate to get it in view Coordinates
+            for indexZ, point in enumerate(map):
+
+                glVertex3f(indexX - world.worldSize,
+                           world.terrainHeightMap[indexX][indexZ],
+                           indexZ - world.worldSize)
+        glEnd()
+
 
     if False:
         # Objects in World array in Blue
@@ -290,7 +304,7 @@ def init():
     '''
 
     # view far away
-    gluLookAt(0, 35, -60,
+    gluLookAt(10, 45, -60,
               0, 20, 0,
               0, 1, 0)
 
@@ -348,7 +362,7 @@ def init():
 
     # collision Spawn Flakes
     for i in xrange(emitterCount):
-        drawObjectsArray.append(particle.particle([uniform(-10.0, 10.0), uniform(28.0, 45.0), uniform(-10.0, 10.0)],
+        drawObjectsArray.append(particle.particle([uniform(-1.0, 1.0), uniform(50.0, 60.0), uniform(-50.0, 55.0)],
         [0.0, 0.0, 0.0], uniform(.2, 1.0), 'resources/flake.obj', i, world, drawObjectsArray, flakesPerEmitter))
 
 
