@@ -11,13 +11,16 @@ import particle, object, world
 width, height = (1280, 720)
 
 #my originFlake Number
-emitterCount = 10
+emitterCount = 200
 
 # my EmitterPer Flake Numer
-flakesPerEmitter = 0
+flakesPerEmitter = 10
 
 #enable DebugMode
 debug = False
+
+# fps
+fps = 20
 
 # for the light
 lightfv = ctypes.c_float * 4
@@ -44,7 +47,7 @@ camEyeX, camEyeY, camEyeZ = (0., 0., 0.)
 camCenterX, camCenterY, camCenterZ = (1., 1., 1.)
 camUpX, camUpY, camUpZ = (0., 0., 0.)
 
-def display(deltaT = 1000 / 60):
+def display(deltaT = 1000 / fps):
     # gets called if glut thinks the window has to be redrawed (by click, resize...)
     # init displaying
     global world, drawObjectsArray, particle
@@ -76,7 +79,7 @@ def display(deltaT = 1000 / 60):
     glutSwapBuffers()
 
     # LoopCallback Recursive
-    glutTimerFunc(1000 / 60, display, 1000 / 60)
+    glutTimerFunc(1000 / fps, display, 1000 / fps)
 
 def debugDraw():
     # debug setup
@@ -104,7 +107,7 @@ def debugDraw():
                            drawObjectsArray[index].voxel[2][0] - world.worldSize)
                 glEnd()
 
-    if True:
+    if False:
         # My CollisionFace in Red
         glColor3f(1., 0., 0.)
         for index in xrange(len(drawObjectsArray)):
@@ -362,7 +365,7 @@ def init():
 
     # collision Spawn Flakes
     for i in xrange(emitterCount):
-        drawObjectsArray.append(particle.particle([uniform(-1.0, 1.0), uniform(50.0, 60.0), uniform(-50.0, 55.0)],
+        drawObjectsArray.append(particle.particle([uniform(-5.0, 5.0), uniform(50.0, 60.0), uniform(0.0, 55.0)],
         [0.0, 0.0, 0.0], uniform(.2, 1.0), 'resources/flake.obj', i, world, drawObjectsArray, flakesPerEmitter))
 
 
@@ -383,7 +386,7 @@ def init():
 
     glutDisplayFunc(display)
     # Timer function for the 60 fps draw callback
-    glutTimerFunc(1000/60, display, 1000/60)
+    glutTimerFunc(1000/fps, display, 1000/fps)
 
     # glutMainLoop enters the GLUT event processing loop. This routine should be called at most once in a GLUT program.
     # Once called, this routine will never return. It will call as necessary any callbacks that have been registered.

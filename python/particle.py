@@ -27,7 +27,7 @@ class particle(object.object):
         self.speed = speed
 
         # and an own elasticity 1:perfect bounce 0: zero bounce 0.7
-        self.elasticity = 0.7
+        self.elasticity = 0.6
 
         # and an own mass
         self.mass = mass
@@ -211,7 +211,7 @@ class particle(object.object):
                 self.collisionResponse(collisionForce)
 
             if (np.dot(normalizedNormale, normalizedPNormale)) <0:
-                print("Particle is under the plate! Fix it")
+                #print("Particle is under the plate! Fix it")
                 collisionForce = self.calcForceCollisionWithTerrain(normalizedNormale)
                 # react on Collision
                 self.collisionResponse(collisionForce)
