@@ -113,8 +113,32 @@ Our Program inherits different Classes. The main Architecture can be described a
 All Objects in the World are described in the Objects class. Now, we have a Terrain and many particles. Both are implemented through the Object Class. A Particle inherits from the Objects Class, but uses some of the functions from the Objects Class. The World Class holds the Modell of our Program. \\
 To have a Modell in our Program we need places to hold our Data. We took Numpy to store the position of every Particle in a global Grid-System.\\
 Our Architecture must inherit a place to store all Particle Positions and must depict the Terrain. Because we saw fast, we can implement the Terrain Storage in a 2-dimensional Terrain, we decided to use two Arrays to store our Data. \\
+\subsection{Main Class}
+In every Program a Main Class is used to setup and initialised the Program. In our case, we use it to include all used external sources like OpenGL or our external OBJ-Loader, setting up the Scene, enable Options in OpenGL, registering mouse and keyboard functions and build the Window. In every loop Step from OpenGL we call the Objects Class draw function to enforce the calculation and displaying for the new Frame.
 \subsection{Object Class}
+The Object class holds many of the information dedicated to an object in our View. At the moment, we have two kinds of objects. The Terrain and our Particles. Bot need some properties and functions which are coded in the Object Class. \\
+Some common Functions:\\
+\subsubsection{The Draw Function}
+The Object Class holds the draw function, which is the entry point for each loop Call from the Main Class. The draw function uses the draw function from the external OBJ Loader and does the translation for the position at each frame. Furthermore, it checks if the given Object is an Object (the Terrain) or a Particle. To only calculate the new position for the Particles and not for the Terrain.  \\
+\subsubsection{The getHeightmap Function}
+To calculate the heightmap for the Terrain, which is stored in the World Class, we need to calculi it somewhere. We wrote a function to loop through all the faces in the obj file and map the y value of it on the x and z Index of the 2-dimensional Array with:\\
+\begin{lstlisting} [language=Python]
+x = int(round(vertice[0])) 
++ world.worldSize
+y = vertice[1]
+z = int(round(vertice[2])) 
++ world.worldSize
+
+world.terrainHeightMap[x][z] = y
+
+\end{lstlisting}
+Because of rounding errors in the height, we had some false Zeros in our Array which gets fixed afterwards with calculating the middle sum of the both neighbours from a face.\\
+\subsubsection{The getBound Function}
+@Tiras
+\subsubsection{The collisionDetection and collisionResponse Functions}
+These 2 functions are only abstract methods to get implemented by the particle Class.\\
 \subsection{Partcile Class}
+The Particle Class inherits from the Object Class and can use all the properties and functions from the Object Class.
 \subsection{World Class}
 Our World Class stores the main Data in our Program. We have used a direct mapping from the real view World to our Modell. The Terrain has a 128 Unit Width and Length. On the top, we need 2 Units to have an invisible Wall. Regarding these two Unit Rules, we need to have a 130 Units big 3-dimensional Array. Because Numpy is very fast in creating those huge arrays, we used Numpy to create the Array. \\
 With:\\
@@ -162,7 +186,7 @@ We give a look in the Terrain Map with the Indices of x and z and check the valu
 \subsection{Particle Collision}
 \subsection{Terrain Collision}
 \section{Conclusion and Outlook}
-
+- enable Mass is related to size of Particle and force
 
 \bibliographystyle{abbrv}
 \bibliography{sigproc} 

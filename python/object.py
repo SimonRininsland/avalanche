@@ -71,17 +71,6 @@ class object():
         zs = [v[2] for v in self.obj.vertx]
         return (min(xs), max(xs), min(ys), max(ys), min(zs), max(zs))
 
-    # BoundingBox in Relation to the Position
-    def getCollisionBox(self):
-        bound = self.getBound()
-        # min(xs), max(xs), min(ys), max(ys), min(zs), max(zs) + position on axis
-        # X - Axis min / max
-        # Y - Axis min / max
-        # Z - Axis min / max
-        return (bound[0] + self.position[0], bound[1] + self.position[0],
-                bound[2] + self.position[1], bound[3] + self.position[1],
-                bound[4] + self.position[2], bound[5] + self.position[2])
-
     def collisionDetection(self, obj):
         if isinstance(obj, particle.particle):
             obj.collisionDetection(self)
