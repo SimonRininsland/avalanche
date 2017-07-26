@@ -20,7 +20,3 @@ class world(object):
 
         # -1 means is empty
         self.grid.fill(-1)
-
-
-    def getGridResolution(self):
-        return self.gridResolution

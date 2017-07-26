@@ -1,5 +1,5 @@
 \documentclass{sig-alternate-05-2015}
-
+\usepackage{listings}
 
 \begin{document}
 
@@ -109,8 +109,55 @@ In the current time Simulation for almost everything exist. Simulations are a im
 \subsection{OpenGL}
 \subsection{Other Packages}
 \section{Architecture}
-\subsection{Grid System}
+Our Program inherits different Classes. The main Architecture can be described as follows:\\
+All Objects in the World are described in the Objects class. Now, we have a Terrain and many particles. Both are implemented through the Object Class. A Particle inherits from the Objects Class, but uses some of the functions from the Objects Class. The World Class holds the Modell of our Program. \\
+To have a Modell in our Program we need places to hold our Data. We took Numpy to store the position of every Particle in a global Grid-System.\\
+Our Architecture must inherit a place to store all Particle Positions and must depict the Terrain. Because we saw fast, we can implement the Terrain Storage in a 2-dimensional Terrain, we decided to use two Arrays to store our Data. \\
+\subsection{Object Class}
+\subsection{Partcile Class}
 \subsection{World Class}
+Our World Class stores the main Data in our Program. We have used a direct mapping from the real view World to our Modell. The Terrain has a 128 Unit Width and Length. On the top, we need 2 Units to have an invisible Wall. Regarding these two Unit Rules, we need to have a 130 Units big 3-dimensional Array. Because Numpy is very fast in creating those huge arrays, we used Numpy to create the Array. \\
+With:\\
+\begin{lstlisting} [language=Python]
+self.grid = np.zeros((self.gridResolution, 
+self.gridResolution, self.gridResolution),
+ dtype=int)
+\end{lstlisting}
+We create fast a needed Array filled with zeros in Integer Type. We use Integer Types because we only need Integer values in our Array. Why is described later. Because we used -1 to set a Grid as not used, we must fill the array with:\\
+\begin{lstlisting} [language=Python]
+self.grid.fill(-1)
+\end{lstlisting}
+with -1. \\
+This creating and filling 3D Array with Numpy used less than a tenth of a second on a i7 PC. Creating this array and filling with -1 with conventional Python tools would spent more than 20 Seconds. \\
+In nearly the same way we can create our terrain Map, with the difference of creating just a 2-dimensional Array with Numpy with Float Values in it, with: \\
+\begin{lstlisting} [language=Python]
+self.terrainHeightMap = np.zeros((
+self.gridResolution, self.gridResolution), 
+dtype=float)
+\end{lstlisting}
+Our World is now ready to hold all our needed Data for further calculations.\\
+\subsubsection{Grid System}
+We recognized very soon, we need a Grid system to not check the collision against all Particles. With more than 100 Particles the Program already gets unsmooth with less than 10 Frames per Second. The Idea was to only check Particle Collision between Particles which are in the same Vortex. A collision between 2 Particles which are in totally different Areas in the Map is not possible.\\
+In the world - Class we already defined a grid for our world. Because the position of a single Particle is always written relative to zero and spawns between -64 to +64 we need to do a: \\
+\begin{lstlisting} [language=Python]
+x = int(round(self.position[0])) 
++ world.worldSize
+y = int(round(self.position[1]))
++ world.worldSize
+z = int(round(self.position[2]))
++ world.worldSize
+\end{lstlisting}
+for every Particle Position to map it on our Grid System. We use this x, y, z Indices for selecting the Vortex in our 3-dimensional Grid array. Furthermore, we check the value in the selected Vortex. If it’s -1 we can simply write the Index of the Particle. If there is already another Index from a Particle, we need to check if there is a Collision. How this works is described in another Topic. If there is a Collision, we need to Call the Collision Reaction from both or more Particles in the Grid. Afterwards we need to add our Index to the other Indices in the Grid. Of course, we must remove our Index from the Vortex before, after entering a new one. \\
+To have fast remove and append Array operations we use Numpy here too. \\
+\subsubsection{Terrain Height}
+Our Terrain Height Map works slightly different like the Grid System. Because the Terrain Map Array is depicting only the X and Z Axes, we only need to take the X and Z Value of each Particle and do the same like above: \\
+\begin{lstlisting} [language=Python]
+x = int(round(self.position[0]))
++ world.worldSize
+z = int(round(self.position[2]))
++ world.worldSize
+\end{lstlisting}
+We give a look in the Terrain Map with the Indices of x and z and check the value with the height of the Particle. We combined this “could be a collision” and recognize a real Collision in this case. The detailed check collision with Terrain is described later. \\
 \section{Collision}
 \subsection{Particle Collision}
 \subsection{Terrain Collision}
