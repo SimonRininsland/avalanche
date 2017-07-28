@@ -129,7 +129,6 @@ class particle(object.object):
 
     def calcForceCollisionWithTerrain(self, normalizedNormale):
         # calculate my output Vector
-        #outputVector = np.add(np.subtract((2 * length * normalizedNormale), self.speed), [self.position[0], self.position[1],self.position[2]])
         outputVector = np.add(-2 * np.dot(self.speed, normalizedNormale) * normalizedNormale, self.speed)
         return outputVector/np.linalg.norm(outputVector) * np.linalg.norm(self.speed)
 

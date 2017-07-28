@@ -1,5 +1,6 @@
 \documentclass{sig-alternate-05-2015}
 \usepackage{listings}
+\usepackage{wrapfig}
 
 \begin{document}
 
@@ -56,6 +57,7 @@ Simon Rininsland\\
 
 \maketitle
 \begin{abstract}
+@Tiras Erklärung weg und sachen ergänzen. 
 (What did we do. As tiny as possible)\\
 - the question(s) you investigated (or purpose), (from Introduction)\\
 	- state the purpose very clearly in the first or second sentence.\\
@@ -118,7 +120,34 @@ All Objects in the World are described in the Objects class. Now, we have a Terr
 To have a Modell in our Program we need places to hold our Data. We took Numpy to store the position of every Particle in a global Grid-System.\\
 Our Architecture must inherit a place to store all Particle Positions and must depict the Terrain. Because we saw fast, we can implement the Terrain Storage in a 2-dimensional Terrain, we decided to use two Arrays to store our Data. \\
 \subsection{Main Class}
-In every Program a Main Class is used to setup and initialised the Program. In our case, we use it to include all used external sources like OpenGL or our external OBJ-Loader, setting up the Scene, enable Options in OpenGL, registering mouse and keyboard functions and build the Window. In every loop Step from OpenGL we call the Objects Class draw function to enforce the calculation and displaying for the new Frame.
+In every Program a Main Class is used to setup and initialised the Program. In our case, we use it to include all used external sources like OpenGL or our external OBJ-Loader, setting up the Scene, enable Options in OpenGL, registering mouse and keyboard functions and build the Window. In every loop Step from OpenGL we call the Objects Class draw function to enforce the calculation and displaying for the new Frame.\\
+\subsubsection{Parameters}
+In the Main Class, we can set some Parameters to influence the output of the Simulation. All Parameters are placed in the Header. Important Parameters are:\\
+- emitterCount(Integer): Sets the number of emitter Flakes. Only EmitterFlakes gets fully physically correct calculated. \\
+- flakesPerEmitter(Integer): Sets the number of Flakes for each Emitter Particle. In Order to get 3 Flakes visible, you can set emitterCount to 3 or set emitterCount to 1 and add 2 flakesPerEmitter. Performance will be better if having more FlakesPerEmitter as emitterCount, but it’s less realistic.\\
+- Debug(boolen): Enables or disables the debug mode. More to debug Mode described later. \\
+- Fps(Integer): Sets the maximum Frames per Second.\\
+\subsubsection{Options setting in Code}
+- To set the Camera starting Point you can change the "gluLookAt" function.\\
+- To change the Flakes spawning Position range, you can change the lines 329-330:\\
+\begin{lstlisting} [language=Python]
+drawObjectsArray.append(particle.particle(
+[uniform(-5.0, 5.0), uniform(50.0, 60.0), 
+uniform(0.0, 55.0)],[0.0, 0.0, 0.0],
+ uniform(.2, 1.0), 'resources/flake.obj',
+ i, world, drawObjectsArray,
+ flakesPerEmitter))
+\end{lstlisting}
+Change the 3 uniform values to set a random X, Y and Z range. \\
+\subsubsection{Debug Mode}
+We recognized fast, we need a debug Mode to have a better View of all our Calculations. To enable the Debug Mode, simply change the Debug Parameter described in the top to true. \\
+In the Debug mode code, you can disable and enable single Viewable outputs of the Program. Things you can enable:\\
+-	Position of the Flake in green: To see a bigger, more visible Flake you can set the first debug Mode to true. It enables a green box around each Flake.\\
+-	Flake Vortex. To see the Vortex a single Flake is registered, you can enable the second debug Mode.\\
+-	Flakes Collision Face: Each Flake creates an own Collision Face in each Frame. To see this, enable the third debug Option. \\
+-	TerrainMap Points: To see the Terrain heightmap array on the Terrain, enable the fourth Option.\\
+-	The last two Debug Options are dedicated to the World Grid. It enables a view of the World Grid. Caution: The Program is getting really slow and not usable if enabling this Options.\\
+
 \subsection{Object Class}
 The Object class holds many of the information dedicated to an object in our View. At the moment, we have two kinds of objects. The Terrain and our Particles. Bot need some properties and functions which are coded in the Object Class. \\
 Some common Functions:\\
@@ -158,8 +187,50 @@ Point 8 & max   & max   & max
 This are our corner points for the bounding box which we are going use for the collision detection and other things.
 \subsubsection{The collisionDetection and collisionResponse Functions}
 These 2 functions are only abstract methods to get implemented by the particle Class.\\
-\subsection{Partcile Class}
+\subsection{Particle Class}
 The Particle Class inherits from the Object Class and can use all the properties and functions from the Object Class.
+\subsubsection{Header Parameters}
+The first Thing visible if firstly checking this class are the two Parameters at the Top. Gravitation and collisionDistanceThreshold are nearly self explainable. In our Case the Gravitation is a vector with 3 Parameters. \\
+\begin{lstlisting} [language=Python]
+gravitation = [0, -9.81, 0]
+\end{lstlisting}
+The gravitation on the X and Z Axis is zero we all know. But the Gravitation on Y Axe is negative. Because the Gravitation is pulling all Objects to the bottom and not forcing them to the top. \\
+The collisionDistanceThreshold described the threshold of the Moment a collision with the Terrain is really a collision. It never collides exactly with the Terrain, because the Movement is calculated once per Frame. It’s always a bit over or under the Terrain. This Parameter can be set lower or higher to gain more accuracy or have less Flakes fallen through the ground.\\
+
+\subsubsection{A Particle}
+A Particle has some characteristics in our Simulation. Some are equal to the Terrain like the position, or the obj where all the vertices are stored, but most of the Properties are only set on the Particle:\\
+-	an index, to write it in the Vortex in world\\
+-	Speed to gain or lose and have a flowing movement\\
+-	Elasticity to set the force, which will be reflected from a collision\\
+-	A Mass to set the weight and size of the flake\\
+-	An Air Drag to lose speed, while drizzle to the terrain\\
+-	A Voxel to store the Vortex in the World Grid\\
+-	A collision Face to use later for collision and \\
+-	The number of Spawned Flakes for each flake which gets calculated\\
+\\
+To later calculate the collision, we push some parameters through the simulation like drawObjectsArray, where all Objects in our World gets stored. To apply some randomness for the emitter Flakes we directly calculate some random position for each spawn Flake. \\
+
+\subsubsection{Steps in every Frame}
+In each Frame the next position of a Flake gets recalculated. The steps for a new position starts with the calculation if there could be a collision with the Terrain or another Particle. This is described later. \\
+If there is no Collision we need to calculate the new Speed with:\\
+\begin{lstlisting} [language=Python]
+self.speed[0] += gravitation[0] * 
+(1 - self.airDrag) * (dt / self.mass)
+self.speed[1] += gravitation[1] * 
+(1 - self.airDrag) * (dt / self.mass)
+self.speed[2] += gravitation[2] * 
+(1 - self.airDrag) * (dt / self.mass)
+\end{lstlisting}
+We see, that the new speed is the old speed add by some multiplied factors which have direct influence on the Flakes Seed like the Gravity, the air Drag and the mass of the Flake. To now get the new position it’s enough to simply say: \\
+\begin{lstlisting} [language=Python]
+self.position[0] += self.speed[0] * passed
+self.position[1] += self.speed[1] * passed
+self.position[2] += self.speed[2] * passed
+\end{lstlisting}
+Now we have the new position of our Flake. In the next Step, we give a look at the new position and check if we changed our voxel. If we left our old Voxel we must deregister the index of the Flake in the old one and register in a new one. If in the new one is no other index of a particle we simply register in the new one, if there is already one we have to check for a collision with another Flake in the one and write both or more in the new Voxel. \\
+After that we draw our Flake in the world, which is separated in the world Class. \\
+
+
 \subsection{World Class}
 Our World Class stores the main Data in our Program. We have used a direct mapping from the real view World to our Modell. The Terrain has a 128 Unit Width and Length. On the top, we need 2 Units to have an invisible Wall. Regarding these two Unit Rules, we need to have a 130 Units big 3-dimensional Array. Because Numpy is very fast in creating those huge arrays, we used Numpy to create the Array. \\
 With:\\
@@ -204,10 +275,75 @@ z = int(round(self.position[2]))
 \end{lstlisting}
 We give a look in the Terrain Map with the Indices of x and z and check the value with the height of the Particle. We combined this “could be a collision” and recognize a real Collision in this case. The detailed check collision with Terrain is described later. \\
 \section{Collision}
+@Tiras Einleitung Collision schreiben
 \subsection{Particle Collision}
 \subsection{Terrain Collision}
+One of the main Goals in our Simulation was the correct collision with the Terrain. The Terrain Collision is separated in two logical parts. One of the Parts is the Collision Detection.\\
+\subsubsection{Collision Detection}
+There are very different Ways to check whether there is a Collison between a Particle and the Terrain or not and we have tried out several Ways. In the End, we had the Idea to simply check if two Faces collides. One calculated from the possible colliding Face of the Terrain and the other one with the third point from the position of the flake. \\
+These two Faces or Triangles have now a remarkable Property. If the cross Product of both are zero, the two triangles are parallel to each other. If two tringles where 2 Points are the same are parallel to each other, then it means they both collide. \\
+The hard Part of coding was to prefill all the requirements for this Calculations.\\
+First, we needed the possible Collision Face. To give a look at the picture the Frame is our Terrain with the Vertices from the points from the Terrain Height Map array. The red dot is the position of our Flake emitted on the Terrain Heightmap. The green Face is the Collision Face which we want to recalculate at each Frame. \\
+@Tiras könntest du das über die ganze breite machen ohne Text am Rand? 
+\begin{wrapfigure}{r}{0.5\textwidth}
+  \begin{center}
+\includegraphics[scale=0.5]{CollisionTerrain.png}
+  \end{center}
+  \caption{Collision with Terrain}
+\end{wrapfigure}
+
+To Calculate the Collision Face, we have taken the three nearest Terrain Heightmap point to our Point mapped on the Heightmap Array. \\
+The second step is to calculate the Triangle with the point of the flake. We simply can take 2 random points from the collision Face mentioned before and the one from the position of the Flake. 
+Now we can calculate the dot Product of the normal of the triangles and take the “collisionDistanceThereshold” Parameter mentioned in the top of the Particle Class to check if it’s nearly zero..\\
+
+\subsubsection{Collision Response}
+We already know if our Flake is colliding with the Ground. The next Step is to calculate the Response of the Flake after the collision with the Terrain. I first show the code: \\
+\begin{lstlisting} [language=Python]
+outputVector = np.add(-2 * np.dot(self.speed, 
+normalizedNormale) * 
+normalizedNormale, self.speed)
+
+return outputVector/np.linalg.norm(
+outputVector) * np.linalg.norm(self.speed)
+\end{lstlisting}
+With this code, we solve a Problem I describe in some pictures. 
+V is our actual speed, which is the vector we collide with the Terrain. R is the output Vector after the Collision. N is the normal of the collision Face. 
+
+\begin{wrapfigure}{r}{0.5\textwidth}
+  \begin{center}
+\includegraphics[scale=0.5]{CollisionResponse1Terrain.png}
+  \end{center}
+  \caption{Collisionresponse 1}
+\end{wrapfigure}
+\begin{wrapfigure}{r}{0.5\textwidth}
+  \begin{center}
+\includegraphics[scale=0.5]{CollisionResponse2Terrain.png}
+  \end{center}
+  \caption{Collisionresponse 2}
+\end{wrapfigure}
+
+ To now get R’ which is the negative of R we need to dot Product V with the normal of the Collision Face N multiplied with N to map V on the Axis of the normal of the Collision Face. After this we have to double this Vector, to get the correct vector length of the new Vector on the normal of the Collision Face. After that we subtract V from this to get the Vector R’. Now we have the negated R, which is our output Vector. Simply negate R’ to get R. \\
+This output Vector is the Force which will have impact on the new speed of the Flake. \\
+With: 
+\begin{lstlisting} [language=Python]
+self.speed[0] = collisionForce[0] 
+* self.elasticity
+self.speed[1] = collisionForce[1] 
+* self.elasticity
+self.speed[2] = collisionForce[2] 
+* self.elasticity
+\end{lstlisting}
+The new Speed is set to the force calculated before. Of course we have to multiply it with the elasticity of the flake. \\
+\\
+
 \section{Conclusion and Outlook}
+@Tiras Dinge ausschreiben
 - enable Mass is related to size of Particle and force
+- extend camera rotation, translation with mouse and keyboard
+- multiple terrains, mutiple flakes
+- debug mode enabled while running. More Debug Modes like coloring flakes for more speed
+- enable friction of Terrain
+- better performance to really have an Avalanche
 
 \bibliographystyle{abbrv}
 \bibliography{sigproc} 

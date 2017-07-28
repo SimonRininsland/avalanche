@@ -208,39 +208,18 @@ def debugDraw():
 
     glColor3f(1., 1., 1.)
 
-def keyFunc(key, x, y):
-    global camEyeX, camEyeY, camEyeZ
-    global camCenterX, camCenterY, camCenterZ
-    global camUpX, camUpY, camUpZ
-
-    CamSpeed = 0.1
-
-    if key == ESCAPE:
-        sys.exit()
-    elif key == "w":
-
-        pass
-    elif key == "a":
-        pass
-    elif key == "s":
-        pass
-    elif key == "d":
-        pass
-    elif key == SPACEBAR:
-        camCenterY += CamSpeed
-    else:
-        print key
-
-    print camCenterY
-
 def mouse(button, state, x, y):
+    # define our mouseInput
     global buttonState
     global ox, oy
+
+    # check if clicked
     if (state == GLUT_DOWN):
         buttonState |= 1 << button
     elif (state == GLUT_UP):
         buttonState = 0
 
+    # take Glut Modifiers for Mouse
     mods = glutGetModifiers()
     if (mods & GLUT_ACTIVE_SHIFT):
         buttonState = 2
@@ -250,9 +229,11 @@ def mouse(button, state, x, y):
     ox = x
     oy = y
 
+    # and trigger a redisplay
     glutPostRedisplay()
 
 def motion(x, y):
+    # CameraMotion to steer the camera
     global buttonState
     global ox, oy
     global camera_trans
@@ -260,6 +241,7 @@ def motion(x, y):
     dx = x - ox
     dy = y - oy
 
+    # if mouse button left
     if buttonState == 3:
         # left+middle = zoom
         camera_trans[2] += (dy / 100.0) * 0.5 * abs(camera_trans[2])
@@ -274,6 +256,8 @@ def motion(x, y):
 
     ox = x
     oy = y
+
+    # force a redisplay
     glutPostRedisplay()
 
 def init():
@@ -297,29 +281,11 @@ def init():
     # void gluPerspective(	GLdouble fovy,	GLdouble aspect, GLdouble zNear, GLdouble zFar);
     gluPerspective(40.0, float(width) / height, 1, 300.0)
 
-    # define a viewing transformation - Camera on Z axis 10 away
-    # void gluLookAt(GLdouble eyeX, GLdouble eyeY, GLdouble eyeZ, GLdouble centerX, GLdouble centerY, GLdouble centerZ, GLdouble upX, GLdouble upY, GLdouble upZ);
-
-    # view more far away
-    '''gluLookAt(100, 100, 100,
-              0, 0, 0,
-              0, 1, 0)
-    '''
-
     # view far away
     gluLookAt(10, 45, -60,
               0, 20, 0,
               0, 1, 0)
 
-    # view near to test
-    # gluLookAt(100, 100, 0,
-    #           0, 0, 0,
-    #           0, 1, 0)
-    '''
-    gluLookAt(20, 25, 10,
-              0, 0, 0,
-              0, 1, 0)
-    '''
     # set MatrixMode for render
     glMatrixMode(GL_MODELVIEW)
 
@@ -358,25 +324,11 @@ def init():
 
     # setup one particle position, velocity, mass, obj
 
-    # Spawn Flakes
-    # for i in xrange(flakeCount):
-    #     drawObjectsArray.append(particle.particle([uniform(-5.0, 5.0), uniform(24.0, 30.0),uniform(-5.0, 5.0)],
-    #     [0.0, 0.0, 0.0], uniform(.2, 1.0), 'resources/flake.obj', i, world, drawObjectsArray))
-
     # collision Spawn Flakes
     for i in xrange(emitterCount):
         drawObjectsArray.append(particle.particle([uniform(-5.0, 5.0), uniform(50.0, 60.0), uniform(0.0, 55.0)],
         [0.0, 0.0, 0.0], uniform(.2, 1.0), 'resources/flake.obj', i, world, drawObjectsArray, flakesPerEmitter))
 
-
-    # near spawn
-    '''for i in xrange(flakeCount):
-        drawObjectsArray.append(particle.particle([uniform(-1.0, 1.0), uniform(2.0, 3.0), uniform(-1.0, 1.0)],
-                              [0.0, 0.0, 0.0], uniform(.2, 1.0), 'resources/flake.obj', i, world, drawObjectsArray))'''
-
-
-    # callback for keystroke
-    glutKeyboardFunc(keyFunc)
 
     # callback for mousepress
     glutMouseFunc(mouse)
