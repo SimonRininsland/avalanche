@@ -103,10 +103,14 @@ We have developed a piece of Software, we want to simulate a physic driven avala
 \section{Introduction}
 In the current time Simulation for almost everything exist. Simulations are a important part of todays society and is used for everything that can’t be test on a large scale or can’t even be create. The simulations are created to see possible situation or behavior of different thinks, for that the simulations need to be precise. Simulations are for the most parts not only a programming problem but also a problem in the subject the simulations are aiming for. Simulations need to behave the exact same as the real world counterpart, therefore a lot of physics is involved in such a simulation. And one of the highest requested kind of simulations are for weather phenomena. For that kind of problem simulations for every kind of weather phenomena exist. There are simulations for tidal waves, thunderstorms, flood and for our project Avalanche.
 \subsection{Project Description}
+The Project for our student module 3D-Animation was to make an avalanche simulation with the help of whatever graphic tool we want. We decided to use Python as our Programming language and the Python binding package for OpenGL. This two tools where the only greater tools that we used for the Project and for the Physics engine we decided to make it on our own so we could be self-sufficient and have the background knowledge behind the commonly used physics engine. With this as our tools we try to make a particle system for creating snow and behave the physically correct way for snow.
 \subsection{Project Result}
+The Result of the Project is a functional Simulation of an Avalanche. The finished code gives the possibility to change the snow amount and the objects for the snow and texture, it is also possible to change the mode for the simulator to debug to see the grid system and the corresponding collision information. 
 \section{Technology}
 \subsection{Python}
+The Programming Language that is going to be used in this Project is Python. The version that we are going to use is the 2.7 Version and we are going to use it for the compatibility that this version has with the OpenGL python binder. Python is an easy to learn script base language that has a lot of possibility to use it. Python has a huge Community that contribute to the development of different packages and with the easy installer the usability is quite easy. The Python package manager pip helps us with the installation for the OpenGL binder pyOpenGL.
 \subsection{OpenGL}
+OpenGL is a cross-language and cross-platform graphics library which allows us to draw in our application. OpenGL helps us to draw and manipulate geometric figures and create scenes with a camera and light in a 3d environment. OpenGL exist since 1992 and it is mainly used for computer-aided design, virtual reality application, visualization of information and scientific results and in the videogames branch.
 \subsection{Other Packages}
 \section{Architecture}
 Our Program inherits different Classes. The main Architecture can be described as follows:\\
@@ -134,7 +138,24 @@ world.terrainHeightMap[x][z] = y
 \end{lstlisting}
 Because of rounding errors in the height, we had some false Zeros in our Array which gets fixed afterwards with calculating the middle sum of the both neighbours from a face.\\
 \subsubsection{The getBound Function}
-@Tiras
+To get the bound of our objects we need to get the vertex of the object. To get this we had to make a few adjustments on the obj-loader so it can support us with our procedure. The modified obj-loader can save the vertex in a separate list that can be used for the bounding functionality, with the list for all dimension we can now get the boundings, for this we need the highest and lowest entry for each dimension. With our values we can now create a bounding box with the following points.
+\begin{table}[!htbp]
+\centering
+\begin{tabular}{llll}
+        & Dim-X & Dim-Y & Dim-Z \\
+Point 1 & min   & min   & min   \\
+Point 2 & max   & min   & min   \\
+Point 3 & min   & max   & min   \\
+Point 4 & max   & max   & min   \\
+Point 5 & min   & min   & max   \\
+Point 6 & max   & min   & max   \\
+Point 7 & min   & max   & max   \\
+Point 8 & max   & max   & max  
+\end{tabular}
+\caption{bounding box points}
+\label{my-label}
+\end{table}
+This are our corner points for the bounding box which we are going use for the collision detection and other things.
 \subsubsection{The collisionDetection and collisionResponse Functions}
 These 2 functions are only abstract methods to get implemented by the particle Class.\\
 \subsection{Partcile Class}
