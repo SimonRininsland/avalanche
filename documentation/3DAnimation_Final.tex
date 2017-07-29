@@ -1,6 +1,5 @@
 \documentclass{sig-alternate-05-2015}
 \usepackage{listings}
-\usepackage{wrapfig}
 
 \begin{document}
 
@@ -72,7 +71,7 @@ Simon Rininsland\\
 \\
 \\
 An Avalanche. A natural dreaded force of many snow and ice particles rushing down a Slope, driven by the Gravity. As many as snowflakes and ice particles which are included in an avalanche as good as we can play with them in an Particle System. One of the best examples for dynamicly rendered simulations for Particle Systems a snow Avalanche will be the central Part in our Project.\\
-In order also to start just from the basics we decided to not use huge frameworks and start from the OpenGL Scatch. We will just use OpenGL Basics.\\ 
+In order also to start just from the basics we decided to not use huge frameworks and start from the OpenGL Scatch. We will just use OpenGL Basics .\\ 
 \\
 
 We will solve some Physically based Problems which comes around with the Topic of an Avalanche like:\\
@@ -103,17 +102,23 @@ We have developed a piece of Software, we want to simulate a physic driven avala
 
 
 \section{Introduction}
-In the current time Simulation for almost everything exist. Simulations are a important part of todays society and is used for everything that can’t be test on a large scale or can’t even be create. The simulations are created to see possible situation or behavior of different thinks, for that the simulations need to be precise. Simulations are for the most parts not only a programming problem but also a problem in the subject the simulations are aiming for. Simulations need to behave the exact same as the real world counterpart, therefore a lot of physics is involved in such a simulation. And one of the highest requested kind of simulations are for weather phenomena. For that kind of problem simulations for every kind of weather phenomena exist. There are simulations for tidal waves, thunderstorms, flood and for our project Avalanche.
+In the current time Simulation for almost everything exist. Simulations are a important part of todays society and is used for everything that can't be test on a large scale or can't even be create. The simulations are created to see possible situation or behavior of different thinks, for that the simulations need to be precise. Simulations are for the most parts not only a programming problem but also a problem in the subject the simulations are aiming for. Simulations need to behave the exact same as the real world counterpart, therefore a lot of physics is involved in such a simulation. And one of the highest requested kind of simulations are for weather phenomena. For that kind of problem simulations for every kind of weather phenomena exist. There are simulations for tidal waves, thunderstorms, flood and for our project Avalanche.
 \subsection{Project Description}
 The Project for our student module 3D-Animation was to make an avalanche simulation with the help of whatever graphic tool we want. We decided to use Python as our Programming language and the Python binding package for OpenGL. This two tools where the only greater tools that we used for the Project and for the Physics engine we decided to make it on our own so we could be self-sufficient and have the background knowledge behind the commonly used physics engine. With this as our tools we try to make a particle system for creating snow and behave the physically correct way for snow.
 \subsection{Project Result}
 The Result of the Project is a functional Simulation of an Avalanche. The finished code gives the possibility to change the snow amount and the objects for the snow and texture, it is also possible to change the mode for the simulator to debug to see the grid system and the corresponding collision information. 
 \section{Technology}
+The Technology that we used is a very small list because of our decision to implement everything from scratch. With this decision, we tried to learn a lot more things as we try to understand the problems that the physics engine would normally address. Therefore the tools that we used are Python as our Programming language. With Python it's quite easy and fast to write functional code therefore we could focus more on the problems which we will discuss later. With Python we also made use of OpenGL as our graphics library, numpy for a few utility and PyWavefront to load our obj-files.
 \subsection{Python}
 The Programming Language that is going to be used in this Project is Python. The version that we are going to use is the 2.7 Version and we are going to use it for the compatibility that this version has with the OpenGL python binder. Python is an easy to learn script base language that has a lot of possibility to use it. Python has a huge Community that contribute to the development of different packages and with the easy installer the usability is quite easy. The Python package manager pip helps us with the installation for the OpenGL binder pyOpenGL.
 \subsection{OpenGL}
 OpenGL is a cross-language and cross-platform graphics library which allows us to draw in our application. OpenGL helps us to draw and manipulate geometric figures and create scenes with a camera and light in a 3d environment. OpenGL exist since 1992 and it is mainly used for computer-aided design, virtual reality application, visualization of information and scientific results and in the videogames branch.
 \subsection{Other Packages}
+The only other packages that we used was numpy for different optimized list classes and vector calculation and a obj-loader for loading our obj files that are going to be our terrain and snowflakes.
+\subsubsection{NumPy}
+Numpy is a python package exclusively for matamatical calculation. Numpy main focus is the implementation of easy to use vector and matrix calculation and because of the size of the calculation numpy also focus on performance of huge datastrukture. The arrays provided by numpy gives a huge performance boost for enormous data sizes and with the functions it's also easy to use different array functionality.
+\subsubsection{obj-loader}
+The obj-loader that we used is the PyWavefront package from Kurt Yoder. The obj-loader gave us an easy method to load our obj-files in our project but for our use it needed a few adjustments, so we gave it an additional functionality to save it's own verticals so we can access the values for further calculations. The functions that needed this functions is the collision detection for the snow particle.
 \section{Architecture}
 Our Program inherits different Classes. The main Architecture can be described as follows:\\
 All Objects in the World are described in the Objects class. Now, we have a Terrain and many particles. Both are implemented through the Object Class. A Particle inherits from the Objects Class, but uses some of the functions from the Objects Class. The World Class holds the Modell of our Program. \\
@@ -124,7 +129,7 @@ In every Program a Main Class is used to setup and initialised the Program. In o
 \subsubsection{Parameters}
 In the Main Class, we can set some Parameters to influence the output of the Simulation. All Parameters are placed in the Header. Important Parameters are:\\
 - emitterCount(Integer): Sets the number of emitter Flakes. Only EmitterFlakes gets fully physically correct calculated. \\
-- flakesPerEmitter(Integer): Sets the number of Flakes for each Emitter Particle. In Order to get 3 Flakes visible, you can set emitterCount to 3 or set emitterCount to 1 and add 2 flakesPerEmitter. Performance will be better if having more FlakesPerEmitter as emitterCount, but it’s less realistic.\\
+- flakesPerEmitter(Integer): Sets the number of Flakes for each Emitter Particle. In Order to get 3 Flakes visible, you can set emitterCount to 3 or set emitterCount to 1 and add 2 flakesPerEmitter. Performance will be better if having more FlakesPerEmitter as emitterCount, but it's less realistic.\\
 - Debug(boolen): Enables or disables the debug mode. More to debug Mode described later. \\
 - Fps(Integer): Sets the maximum Frames per Second.\\
 \subsubsection{Options setting in Code}
@@ -195,7 +200,7 @@ The first Thing visible if firstly checking this class are the two Parameters at
 gravitation = [0, -9.81, 0]
 \end{lstlisting}
 The gravitation on the X and Z Axis is zero we all know. But the Gravitation on Y Axe is negative. Because the Gravitation is pulling all Objects to the bottom and not forcing them to the top. \\
-The collisionDistanceThreshold described the threshold of the Moment a collision with the Terrain is really a collision. It never collides exactly with the Terrain, because the Movement is calculated once per Frame. It’s always a bit over or under the Terrain. This Parameter can be set lower or higher to gain more accuracy or have less Flakes fallen through the ground.\\
+The collisionDistanceThreshold described the threshold of the Moment a collision with the Terrain is really a collision. It never collides exactly with the Terrain, because the Movement is calculated once per Frame. It's always a bit over or under the Terrain. This Parameter can be set lower or higher to gain more accuracy or have less Flakes fallen through the ground.\\
 
 \subsubsection{A Particle}
 A Particle has some characteristics in our Simulation. Some are equal to the Terrain like the position, or the obj where all the vertices are stored, but most of the Properties are only set on the Particle:\\
@@ -221,7 +226,7 @@ self.speed[1] += gravitation[1] *
 self.speed[2] += gravitation[2] * 
 (1 - self.airDrag) * (dt / self.mass)
 \end{lstlisting}
-We see, that the new speed is the old speed add by some multiplied factors which have direct influence on the Flakes Seed like the Gravity, the air Drag and the mass of the Flake. To now get the new position it’s enough to simply say: \\
+We see, that the new speed is the old speed add by some multiplied factors which have direct influence on the Flakes Seed like the Gravity, the air Drag and the mass of the Flake. To now get the new position it's enough to simply say: \\
 \begin{lstlisting} [language=Python]
 self.position[0] += self.speed[0] * passed
 self.position[1] += self.speed[1] * passed
@@ -232,7 +237,7 @@ After that we draw our Flake in the world, which is separated in the world Class
 
 
 \subsection{World Class}
-Our World Class stores the main Data in our Program. We have used a direct mapping from the real view World to our Modell. The Terrain has a 128 Unit Width and Length. On the top, we need 2 Units to have an invisible Wall. Regarding these two Unit Rules, we need to have a 130 Units big 3-dimensional Array. Because Numpy is very fast in creating those huge arrays, we used Numpy to create the Array. \\
+Our World Class stores the main Data in our Program. We have used a direct mapping from the real view World to our model. The Terrain has a 128 Unit Width and Length. On the top, we need 2 Units to have an invisible Wall. Regarding these two Unit Rules, we need to have a 130 Units big 3-dimensional Array. Because Numpy is very fast in creating those huge arrays, we used Numpy to create the Array. \\
 With:\\
 \begin{lstlisting} [language=Python]
 self.grid = np.zeros((self.gridResolution, 
@@ -263,7 +268,7 @@ y = int(round(self.position[1]))
 z = int(round(self.position[2]))
 + world.worldSize
 \end{lstlisting}
-for every Particle Position to map it on our Grid System. We use this x, y, z Indices for selecting the Vortex in our 3-dimensional Grid array. Furthermore, we check the value in the selected Vortex. If it’s -1 we can simply write the Index of the Particle. If there is already another Index from a Particle, we need to check if there is a Collision. How this works is described in another Topic. If there is a Collision, we need to Call the Collision Reaction from both or more Particles in the Grid. Afterwards we need to add our Index to the other Indices in the Grid. Of course, we must remove our Index from the Vortex before, after entering a new one. \\
+for every Particle Position to map it on our Grid System. We use this x, y, z Indices for selecting the Vortex in our 3-dimensional Grid array. Furthermore, we check the value in the selected Vortex. If it's -1 we can simply write the Index of the Particle. If there is already another Index from a Particle, we need to check if there is a Collision. How this works is described in another Topic. If there is a Collision, we need to Call the Collision Reaction from both or more Particles in the Grid. Afterwards we need to add our Index to the other Indices in the Grid. Of course, we must remove our Index from the Vortex before, after entering a new one. \\
 To have fast remove and append Array operations we use Numpy here too. \\
 \subsubsection{Terrain Height}
 Our Terrain Height Map works slightly different like the Grid System. Because the Terrain Map Array is depicting only the X and Z Axes, we only need to take the X and Z Value of each Particle and do the same like above: \\
@@ -273,10 +278,34 @@ x = int(round(self.position[0]))
 z = int(round(self.position[2]))
 + world.worldSize
 \end{lstlisting}
-We give a look in the Terrain Map with the Indices of x and z and check the value with the height of the Particle. We combined this “could be a collision” and recognize a real Collision in this case. The detailed check collision with Terrain is described later. \\
+We give a look in the Terrain Map with the Indices of x and z and check the value with the height of the Particle. We combined this "could be a collision" and recognize a real Collision in this case. The detailed check collision with Terrain is described later. \\
 \section{Collision}
-@Tiras Einleitung Collision schreiben
+Collision in this project is a crucial point because of the non-existing physics engine. Without a physics engine, it's not possible to rely on a function or anything else that activates when a collision appears, for that we must lay our hands on it and create an own Collision detection and the corresponding reaction to the collision. Therefore, we need to understand what a collision is in the real world with the earth physics law and how different objects behave in a collision situation.
 \subsection{Particle Collision}
+The Particle Collision is split in two separate section. The collision detection is the first part where we must check if two snowflakes collide to each other therefore we need the graphical concept of bounding volumes. The second part is the reaction of the collision. The collision response is triggered after the detect of a collision and here we managed to implement a physical correct response equal to the physical concept of a perfectly elastic collision.
+\subsubsection{Collision Detection}
+The collision detection for particles is thanks to the easy form of a snowflake an easy task. The collision between 2 spheres is one of many collision types solved with bounding volumes. With this concept we gave every object a specific bounding body that envelop the hole object. With the different part of this object we can create easy collision detection calculation. The different bounding volumes that can be used are "Bounding Boxes" here we separate between axis-align and oriented bounding boxes, "Bounding Cylinder" a bounding volume often used in video games, "Bounding Spheres" which we used for our project exclusively and many more bounding volumes. With the different type of bounding volumes there are also different types of collision detection calculation, the collision detection calculation between two spheres is as followed. 
+\begin{equation}
+\sqrt{\left ( A_x - B_x \right )^2 + \left ( A_y - B_y \right )^2 + \left ( A_z - B_z \right )^2} <= A_{radius} + B_{radius}
+\end{equation}
+This calculation checks if the sum of the radius of our two objects is smaller than the current distance between the middle point of our objects. After the calculation and a positive result, we can engage the collision reaction.
+\subsubsection{Collision Response}
+The collision response for two identical spheres is also quite manageable for the requirements that we have. The collision that we aim to do is a perfectly elastic collision, that means that the mass, size and weight is equal between the spheres, there is also the requirement that there is no lost of kinetic energy in a collision. This type of collision is also used in billiard there the billiard balls have all the same mass, size and weight therefore the collision can be easily visualized with a billiard game. Because of the requirement that no kinetic energy gets lost there is no requirement of force calculation. The actual calculation that is required is for getting the direction where the resulting ball should travel. For this we need to calculate a few things we need the line between the middle points and the line corresponding tangent line from our collision point. The equation for this takes the velocity vector and uses it. 
+
+\begin{figure}[!htbp]
+  \begin{center}
+\includegraphics[scale=0.85]{CollisionSphereEquation.png}
+  \end{center}
+  \caption{Collision Equation}
+\end{figure}
+
+The result for the equation is mainly the switch of values. The following picture is a simplified version of a collision with the axis as the corresponding lines and as a 2-dimension version. It shows that the equation manly changes the values from our tangent line.
+\begin{figure}[!htbp]
+  \begin{center}
+\includegraphics[scale=0.85]{CollisionSphere.png}
+  \end{center}
+  \caption{Collision between 2 Flakes}
+\end{figure}
 \subsection{Terrain Collision}
 One of the main Goals in our Simulation was the correct collision with the Terrain. The Terrain Collision is separated in two logical parts. One of the Parts is the Collision Detection.\\
 \subsubsection{Collision Detection}
@@ -284,17 +313,16 @@ There are very different Ways to check whether there is a Collison between a Par
 These two Faces or Triangles have now a remarkable Property. If the cross Product of both are zero, the two triangles are parallel to each other. If two tringles where 2 Points are the same are parallel to each other, then it means they both collide. \\
 The hard Part of coding was to prefill all the requirements for this Calculations.\\
 First, we needed the possible Collision Face. To give a look at the picture the Frame is our Terrain with the Vertices from the points from the Terrain Height Map array. The red dot is the position of our Flake emitted on the Terrain Heightmap. The green Face is the Collision Face which we want to recalculate at each Frame. \\
-@Tiras könntest du das über die ganze breite machen ohne Text am Rand? 
-\begin{wrapfigure}{r}{0.5\textwidth}
+\begin{figure}[!htbp]
   \begin{center}
-\includegraphics[scale=0.5]{CollisionTerrain.png}
+\includegraphics[scale=0.75]{CollisionTerrain.png}
   \end{center}
   \caption{Collision with Terrain}
-\end{wrapfigure}
+\end{figure}
 
 To Calculate the Collision Face, we have taken the three nearest Terrain Heightmap point to our Point mapped on the Heightmap Array. \\
 The second step is to calculate the Triangle with the point of the flake. We simply can take 2 random points from the collision Face mentioned before and the one from the position of the Flake. 
-Now we can calculate the dot Product of the normal of the triangles and take the “collisionDistanceThereshold” Parameter mentioned in the top of the Particle Class to check if it’s nearly zero..\\
+Now we can calculate the dot Product of the normal of the triangles and take the "collisionDistanceThereshold" Parameter mentioned in the top of the Particle Class to check if it's nearly zero..\\
 
 \subsubsection{Collision Response}
 We already know if our Flake is colliding with the Ground. The next Step is to calculate the Response of the Flake after the collision with the Terrain. I first show the code: \\
@@ -309,20 +337,20 @@ outputVector) * np.linalg.norm(self.speed)
 With this code, we solve a Problem I describe in some pictures. 
 V is our actual speed, which is the vector we collide with the Terrain. R is the output Vector after the Collision. N is the normal of the collision Face. 
 
-\begin{wrapfigure}{r}{0.5\textwidth}
+\begin{figure}[!htbp]
   \begin{center}
-\includegraphics[scale=0.5]{CollisionResponse1Terrain.png}
+\includegraphics[scale=0.75]{CollisionResponse1Terrain.png}
   \end{center}
   \caption{Collisionresponse 1}
-\end{wrapfigure}
-\begin{wrapfigure}{r}{0.5\textwidth}
+\end{figure}
+\begin{figure}[!htbp]
   \begin{center}
-\includegraphics[scale=0.5]{CollisionResponse2Terrain.png}
+\includegraphics[scale=0.75]{CollisionResponse2Terrain.png}
   \end{center}
   \caption{Collisionresponse 2}
-\end{wrapfigure}
+\end{figure}
 
- To now get R’ which is the negative of R we need to dot Product V with the normal of the Collision Face N multiplied with N to map V on the Axis of the normal of the Collision Face. After this we have to double this Vector, to get the correct vector length of the new Vector on the normal of the Collision Face. After that we subtract V from this to get the Vector R’. Now we have the negated R, which is our output Vector. Simply negate R’ to get R. \\
+ To now get R' which is the negative of R we need to dot Product V with the normal of the Collision Face N multiplied with N to map V on the Axis of the normal of the Collision Face. After this we have to double this Vector, to get the correct vector length of the new Vector on the normal of the Collision Face. After that we subtract V from this to get the Vector R'. Now we have the negated R, which is our output Vector. Simply negate R' to get R. \\
 This output Vector is the Force which will have impact on the new speed of the Flake. \\
 With: 
 \begin{lstlisting} [language=Python]
@@ -337,13 +365,8 @@ The new Speed is set to the force calculated before. Of course we have to multip
 \\
 
 \section{Conclusion and Outlook}
-@Tiras Dinge ausschreiben
-- enable Mass is related to size of Particle and force
-- extend camera rotation, translation with mouse and keyboard
-- multiple terrains, mutiple flakes
-- debug mode enabled while running. More Debug Modes like coloring flakes for more speed
-- enable friction of Terrain
-- better performance to really have an Avalanche
+Our resume was quite impressive. We managed to create an avalanche simulation within a few weeks and all without the help of already existing tools. We decided to take this step to see what the relives are that we enjoy with physics engine and see what the problems are without them. Thanks to that we managed to see the different approaches for all the different physically problems. Unfortunately, we couldn't get our hands on a few problems despite having such limited time. As for our outlook, we would try to create an optimized version of our simulation that can have a lot more particle as the few that we have in our current state. Therefore, we need to dramatically raise the performance with optimized functionality and more usage of already used techniques like the numpy arrays. The current simulation has a camera function but it's still not finished and should be reworked with a few minor changes so the movement in our scene is much smoother and user-friendly. For better understanding and debugging we would also tried to change our current debug mode. The debug mode needs to be toggled within a running simulation to see a lot more things. Therefore, our debug-mode self needs also a lot of changes to better visualized different types of flakes like our emitter flakes. In our current physics implementation, we tried to make an easy solution finished the project in time, therefore as an example we used the perfectly elastic collision as our particle collision reaction even so it's not the correct way to response in this type of environment because of the translation of the kinetic energy. The collision response is also a thing that we like to address in our terrain collision here we simplified the project so that we didn't calculate the friction of our particle. But without any exception we had some major results in knowledge and results that we enjoyed in this Project 
+
 
 \bibliographystyle{abbrv}
 \bibliography{sigproc} 
